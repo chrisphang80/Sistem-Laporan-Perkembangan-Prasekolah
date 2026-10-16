@@ -206,6 +206,26 @@ td select { min-width: 115px; }
 .notice { background: #fff4d9; padding: 12px; border-radius: 12px; font-size: 13px; }
 footer { text-align: center; padding: 15px; color: var(--muted); font-size: 12px; }
 
+/* CSV 模板区块 */
+.csv-template-box {
+  background: #f7f3fa;
+  border: 1px dashed #c9b8e0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #6a5a7a;
+  line-height: 1.55;
+}
+.csv-template-box code {
+  background: #ffffff;
+  border: 1px solid #e0d6ee;
+  border-radius: 6px;
+  padding: 1px 6px;
+  font-size: 11.5px;
+  color: #4b3f5c;
+}
+
 /* ============ 成绩分析 ============ */
 .analysis-toolbar {
   display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
@@ -539,6 +559,19 @@ footer { text-align: center; padding: 15px; color: var(--muted); font-size: 12px
           <input type="file" id="csvUpload" accept=".csv,text/csv">
         </div>
         <small data-i18n="csvHelp">CSV 栏位顺序：姓名,编号,年龄,班级,性别</small>
+
+        <!-- CSV 模板下载 -->
+        <div class="csv-template-box">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+            <div>
+              <b data-i18n="csvTemplateTitle">📄 CSV 模板</b><br>
+              <span data-i18n="csvTemplateDesc">表头：</span>
+              <code>学生姓名,学生编号,年龄,班级,性别</code>
+            </div>
+            <button type="button" class="blue" id="downloadCsvTemplate" data-i18n="downloadCsvTemplate">⬇️ 下载模板</button>
+          </div>
+        </div>
+
         <button type="button" class="secondary" id="toggleStudentList" aria-expanded="false" style="width:100%;margin-top:10px">显示学生名单 / 管理学生</button>
         <div id="studentList" class="student-list hidden"></div>
       </section>
@@ -845,6 +878,9 @@ const translations = {
     age:"年龄", className:"班级", gender:"性别", saveStudent:"＋ 保存学生",
     clear:"清空", searchStudent:"搜索学生", importCSV:"批量导入学生 CSV",
     csvHelp:"CSV 栏位顺序：姓名,编号,年龄,班级,性别",
+    csvTemplateTitle:"📄 CSV 模板",
+    csvTemplateDesc:"表头：",
+    downloadCsvTemplate:"⬇️ 下载模板",
     totalStudents:"学生人数", totalClasses:"班级数量", assessed:"已评估学生",
     assessmentTab:"📊 学习评估", analysisTab:"📈 成绩分析", reportTab:"📄 成长报告",
     assessmentTitle:"🌱 KSPK 学习领域评估",
@@ -919,6 +955,9 @@ const translations = {
     className:"Kelas", gender:"Jantina", saveStudent:"＋ Simpan Murid",
     clear:"Kosongkan", searchStudent:"Cari Murid", importCSV:"Import Murid CSV",
     csvHelp:"Susunan CSV: Nama,Nombor,Umur,Kelas,Jantina",
+    csvTemplateTitle:"📄 Templat CSV",
+    csvTemplateDesc:"Pengepala:",
+    downloadCsvTemplate:"⬇️ Muat Turun Templat",
     totalStudents:"Jumlah Murid", totalClasses:"Jumlah Kelas",
     assessed:"Murid Dinilai", assessmentTab:"📊 Penilaian",
     analysisTab:"📈 Analisis", reportTab:"📄 Laporan Perkembangan",
@@ -1880,6 +1919,7 @@ function saveSchoolSettings() {
   alert(t("saved"));
 }
 
+/* ============ CSV 解析与导入 ============ */
 function parseCSVLine(line) {
   const result = [];
   let current = "", quoted = false;
@@ -1936,6 +1976,26 @@ function importCSV(file) {
   };
   reader.onerror = () => alert(t("invalidFile"));
   reader.readAsText(file, "UTF-8");
+}
+
+/* ============ 下载 CSV 模板 ============ */
+function downloadCsvTemplate() {
+  // 表头 + 示例行
+  const header = "学生姓名,学生编号,年龄,班级,性别";
+  const example = "陈小美,S001,5,A 班,女";
+  const second = "Ahmad,S002,5,A 班,男";
+  // 用 UTF-8 BOM，确保 Excel 打开时正确显示中文
+  const csv = "\uFEFF" + [header, example, second].join("\r\n") + "\r\n";
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "学生资料导入模板.csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function selectedStudentIds() {
@@ -2082,7 +2142,6 @@ function restoreBackupFromFile(file) {
       }
       if (!confirm(t("restoreConfirm"))) return;
 
-      // 还原数据
       settings = {
         schoolName: (data.settings && data.settings.schoolName) || "Kindergarten",
         teacherName: (data.settings && data.settings.teacherName) || "Teacher",
@@ -2126,6 +2185,7 @@ $("saveSettings").addEventListener("click", saveSchoolSettings);
 $("addStudentBtn").addEventListener("click", saveStudent);
 $("clearForm").addEventListener("click", clearStudentForm);
 $("saveAssessment").addEventListener("click", saveCurrentAssessment);
+$("downloadCsvTemplate").addEventListener("click", downloadCsvTemplate);
 $("activeStudent").addEventListener("change", () => {
   renderStudentList();
   renderGrades();
@@ -2344,10 +2404,8 @@ $("logoUpload").addEventListener("change", event => {
   reader.readAsDataURL(file);
 });
 
-/* 备份按钮 */
 $("backupBtn").addEventListener("click", exportBackup);
 
-/* 恢复：点击 drop zone 打开文件选择 */
 $("dropZone").addEventListener("click", () => $("restoreInput").click());
 $("restoreInput").addEventListener("change", event => {
   const file = event.target.files && event.target.files[0];
@@ -2355,7 +2413,6 @@ $("restoreInput").addEventListener("change", event => {
   event.target.value = "";
 });
 
-/* 恢复：拖放文件 */
 ["dragenter", "dragover"].forEach(evt => {
   $("dropZone").addEventListener(evt, e => {
     e.preventDefault();
