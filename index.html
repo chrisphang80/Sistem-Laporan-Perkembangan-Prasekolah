@@ -1,0 +1,2147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KSPK 学前学生评估报告系统</title>
+
+<style>
+:root {
+  --pink: #f7c9d5;
+  --peach: #ffe1ce;
+  --yellow: #fff0b8;
+  --green: #d9edda;
+  --blue: #dceafa;
+  --purple: #e9ddfa;
+  --ink: #454454;
+  --muted: #77768a;
+  --white: #fffdfb;
+  --border: #eee5e8;
+  --tp1: #f4a6a6;
+  --tp2: #f7ddaa;
+  --tp3: #a9d6a9;
+  --na: #e3e0e6;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #fff8f5;
+  color: var(--ink);
+  font-family: "Noto Sans SC", "Microsoft YaHei", Arial, sans-serif;
+}
+button, input, select, textarea { font: inherit; }
+button {
+  cursor: pointer;
+  border: 0;
+  border-radius: 12px;
+  padding: 10px 15px;
+  background: #f5d2dc;
+  color: #4b4350;
+  font-weight: 700;
+}
+button:hover { filter: brightness(.97); }
+button.secondary { background: #eee9f7; }
+button.green { background: #d9edda; }
+button.blue { background: #dceafa; }
+button.danger { background: #ffe0dc; }
+button.ai-btn {
+  background: #e9ddfa;
+  padding: 7px 11px;
+  font-size: 12px;
+  border-radius: 9px;
+  white-space: nowrap;
+}
+input, select, textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  background: white;
+  color: var(--ink);
+}
+textarea { resize: vertical; min-height: 76px; }
+label { display: block; font-size: 13px; margin-bottom: 6px; color: var(--muted); }
+h1, h2, h3, h4, p { margin-top: 0; }
+h1 { font-size: 25px; margin-bottom: 8px; }
+h2 { font-size: 19px; }
+h3 { font-size: 15px; }
+small { color: var(--muted); }
+.app { max-width: 1440px; margin: auto; padding: 22px; }
+header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap; margin-bottom: 20px;
+}
+.brand { display: flex; align-items: center; gap: 14px; }
+.logo {
+  width: 62px; height: 62px; border-radius: 20px;
+  background: var(--yellow); display: flex; align-items: center;
+  justify-content: center; font-size: 30px; overflow: hidden;
+}
+.logo img { width: 100%; height: 100%; object-fit: contain; }
+.subtitle { color: var(--muted); font-size: 13px; }
+.header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.layout {
+  display: grid; grid-template-columns: 310px minmax(0, 1fr); gap: 18px;
+}
+.panel {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 20px; padding: 20px; margin-bottom: 18px;
+  box-shadow: 0 5px 20px #5a344008;
+}
+.sidebar { min-width: 0; }
+.main { min-width: 0; }
+.field { margin-bottom: 13px; }
+.row { display: flex; gap: 10px; align-items: center; }
+.row > * { min-width: 0; }
+.row .field { flex: 1; }
+.actions { display: flex; gap: 7px; flex-wrap: wrap; }
+.stats {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 12px; margin-bottom: 18px;
+}
+.stat { padding: 16px; border-radius: 16px; }
+.stat strong { display: block; font-size: 27px; margin-bottom: 4px; }
+.stat:nth-child(1) { background: var(--pink); }
+.stat:nth-child(2) { background: var(--yellow); }
+.stat:nth-child(3) { background: var(--green); }
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.tabs button.active { background: #dcd0f4; }
+.student-list { display: flex; flex-direction: column; gap: 7px; margin-top: 14px; }
+.student-item {
+  border: 1px solid var(--border); padding: 10px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.student-item.selected { background: #fff0f4; border-color: #e9b9c9; }
+.student-name { font-weight: 700; cursor: pointer; overflow-wrap: anywhere; }
+.student-id { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.student-thumb {
+  width: 36px; height: 36px; border-radius: 8px; object-fit: cover;
+  border: 1px solid var(--border); flex-shrink: 0;
+}
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { border-bottom: 1px solid var(--border); padding: 10px 8px; text-align: left; }
+th { background: #fff3f5; white-space: nowrap; }
+td select { min-width: 115px; }
+
+.pillar-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 8px;
+}
+.pillar {
+  padding: 14px; border-radius: 15px; background: #fff3f5;
+  border: 1px solid #f0e0e4;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.pillar-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; flex-wrap: wrap; margin-bottom: 4px;
+}
+.pillar-header h3 { margin: 0; }
+.pillar-header .pillar-bulk {
+  display: flex; align-items: center; gap: 6px;
+}
+.pillar-header .pillar-bulk select {
+  width: auto; padding: 5px 8px; font-size: 12px; min-width: 130px;
+  border-radius: 8px;
+}
+.pillar .sp-list { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+.sp-item {
+  display: flex; align-items: center; gap: 8px;
+  background: #ffffffaa; padding: 8px 10px; border-radius: 10px;
+  flex-wrap: wrap;
+}
+.sp-item label { flex: 1; margin: 0; font-size: 12px; color: var(--ink); font-weight: 600; min-width: 130px; }
+.sp-item select { width: auto; min-width: 110px; flex-shrink: 0; }
+.pillar-average {
+  margin-top: 10px; font-weight: 700; color: #6a5a7a;
+  background: #ffffffcc; padding: 6px 10px; border-radius: 8px;
+  text-align: center; font-size: 13px;
+}
+
+.textarea-with-ai { position: relative; }
+.textarea-with-ai .ai-toolbar {
+  display: flex; justify-content: flex-end; margin-bottom: 6px;
+  gap: 6px; flex-wrap: wrap;
+}
+.ai-hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+.report {
+  background: white; border: 1px solid #e8e0e3; border-radius: 12px;
+  padding: 28px; max-width: 900px; margin: auto;
+  overflow: hidden;
+}
+.report-header { text-align: center; border-bottom: 2px solid #e8d6dc; padding-bottom: 16px; }
+.report-logo {
+  max-width: 90px !important; max-height: 90px !important;
+  width: auto; height: auto; object-fit: contain;
+  display: block; margin: 0 auto 8px;
+}
+.report-meta {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px 20px;
+  margin: 18px 0; font-size: 14px;
+}
+.report-meta div { padding: 7px; background: #fff9f8; border-radius: 7px; }
+.report table { margin: 12px 0 18px; }
+.report th { background: #f9edf1; }
+.report textarea { min-height: 90px; }
+.report-student-photo {
+  width: 82px; height: 96px; object-fit: cover;
+  border: 1px solid #e8d6dc; border-radius: 6px; flex-shrink: 0;
+}
+.report-student-info { display:flex; align-items:flex-start; gap:14px; }
+.report-student-info .report-meta { flex:1; min-width:0; }
+
+.student-photo-preview {
+  display:none; width:90px; height:90px; object-fit:cover;
+  border-radius:12px; border:1px solid var(--border); margin-top:8px;
+}
+.empty { text-align: center; padding: 25px; color: var(--muted); }
+.hidden { display: none !important; }
+.notice { background: #fff4d9; padding: 12px; border-radius: 12px; font-size: 13px; }
+footer { text-align: center; padding: 15px; color: var(--muted); font-size: 12px; }
+
+/* ============ 成绩分析 ============ */
+.analysis-toolbar {
+  display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+  margin-bottom: 16px;
+}
+.analysis-toolbar select { width: auto; min-width: 160px; }
+
+.analysis-tabs {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 18px; padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.analysis-tabs button {
+  background: #f0ecf4;
+  color: #5a5a6a;
+  padding: 9px 14px;
+  font-size: 13px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+.analysis-tabs button.active {
+  background: #dcd0f4;
+  color: #3f2f5c;
+  box-shadow: 0 2px 6px #b8a6d033;
+}
+.analysis-tabs button .count-badge {
+  display: inline-block;
+  background: #f4a6a6;
+  color: white;
+  font-size: 10.5px;
+  border-radius: 7px;
+  padding: 1px 6px;
+  margin-left: 6px;
+  font-weight: 700;
+}
+.analysis-tabs button.ok .count-badge {
+  background: #a9d6a9;
+}
+
+.analysis-summary {
+  display: grid; grid-template-columns: repeat(6, 1fr);
+  gap: 10px; margin-bottom: 18px;
+}
+.analysis-summary .as-card {
+  padding: 14px 10px; border-radius: 14px; text-align: center;
+}
+.analysis-summary .as-card strong { display: block; font-size: 22px; }
+.analysis-summary .as-card span { font-size: 11.5px; color: var(--muted); }
+.as-card.tp1 { background: #fbe4e4; }
+.as-card.tp2 { background: #fdf2d8; }
+.as-card.tp3 { background: #e3f3e3; }
+.as-card.na  { background: #f0eef3; }
+
+.bidang-analysis {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;
+}
+
+.bidang-card {
+  border: 1px solid var(--border); border-radius: 16px;
+  padding: 16px 18px; background: #fffdfd;
+}
+.bidang-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; flex-wrap: wrap; margin-bottom: 10px;
+}
+.bidang-card-header h3 { margin: 0; font-size: 16px; }
+.bidang-card-header .bidang-avg {
+  font-size: 12px; color: #6a5a7a; font-weight: 700;
+  background: #f5effa; padding: 4px 10px; border-radius: 8px;
+}
+
+.bidang-bar-chart {
+  display: flex; align-items: flex-end; gap: 14px;
+  height: 110px; padding: 6px 4px 0; border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+.bidang-bar-col {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: flex-end; height: 100%;
+}
+.bidang-bar-col .bar {
+  width: 100%; max-width: 56px; border-radius: 6px 6px 0 0;
+  transition: height .3s ease; min-height: 3px;
+}
+.bidang-bar-col .bar.tp3 { background: var(--tp3); }
+.bidang-bar-col .bar.tp2 { background: var(--tp2); }
+.bidang-bar-col .bar.tp1 { background: var(--tp1); }
+.bidang-bar-col .bar.na  { background: var(--na); }
+.bidang-bar-col .bar-value {
+  font-size: 11px; font-weight: 700; color: #5a5a6a; margin-bottom: 2px;
+}
+.bidang-bar-labels {
+  display: flex; gap: 14px; margin-top: 4px; margin-bottom: 6px;
+}
+.bidang-bar-labels .lbl {
+  flex: 1; text-align: center; font-size: 11px; color: var(--muted);
+  max-width: 56px;
+}
+.bidang-sp-summary {
+  font-size: 12px; color: var(--muted); margin-top: 6px;
+  line-height: 1.5;
+}
+
+/* SP / 学生明细表 */
+.sp-detail-table {
+  width: 100%; border-collapse: collapse; font-size: 12.5px;
+  margin-top: 6px;
+}
+.sp-detail-table th, .sp-detail-table td {
+  border: 1px solid var(--border); padding: 7px 8px; text-align: center;
+}
+.sp-detail-table th {
+  background: #f9edf1; font-size: 11.5px; white-space: nowrap;
+}
+.sp-detail-table td.sp-desc {
+  text-align: left; font-weight: 600; color: var(--ink);
+}
+.sp-detail-table td.num { font-weight: 700; }
+.sp-detail-table td.num.tp3 { color: #3d7d3d; }
+.sp-detail-table td.num.tp2 { color: #b48a2a; }
+.sp-detail-table td.num.tp1 { color: #b13a3a; }
+.sp-detail-table td.num.na  { color: #888; }
+
+/* 干预清单 */
+.intervention-section { margin-top: 22px; }
+.intervention-list {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+.student-need {
+  border: 1px solid #f0dada; border-radius: 14px;
+  padding: 12px 14px; background: #fff8f8;
+}
+.student-need.urgent { background: #fdecec; border-color: #f0bcbc; }
+.student-need .sn-head {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+  justify-content: space-between; flex-wrap: wrap;
+}
+.student-need .sn-name { font-weight: 700; }
+.student-need .sn-count {
+  font-size: 11px; background: #f4a6a6; color: white;
+  padding: 3px 8px; border-radius: 8px; font-weight: 700;
+}
+.student-need .sn-count.ok { background: #a9d6a9; }
+.student-need .sn-actions {
+  margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;
+}
+
+@media(max-width:850px) {
+  .layout { grid-template-columns: 1fr; }
+  .stats { gap: 7px; }
+  .stat { padding: 12px; }
+  .stat strong { font-size: 22px; }
+  .pillar-grid { grid-template-columns: 1fr; }
+  .analysis-summary { grid-template-columns: repeat(3, 1fr); }
+  .bidang-analysis { grid-template-columns: 1fr; }
+  .intervention-list { grid-template-columns: 1fr; }
+}
+
+@media print {
+  body { background: white; }
+  .no-print, header, .sidebar, .stats, .tabs, footer,
+  .pillar-header .pillar-bulk, .ai-toolbar, .ai-hint,
+  .analysis-toolbar, .sn-actions, .analysis-tabs { display: none !important; }
+  .app { max-width: none; padding: 0; }
+  .layout { display: block; }
+  .panel { border: none; box-shadow: none; padding: 0; margin: 0; }
+  #reportPanel { display: block !important; }
+  #analysisPanel { display: none !important; }
+
+  #reportContent.report {
+    display: block;
+    border: none; border-radius: 0; padding: 0;
+    max-width: none; width: 100%;
+    height: auto; min-height: 0; max-height: none;
+    overflow: visible;
+    font-size: 10.5pt;
+    page-break-inside: auto; break-inside: auto;
+  }
+  #reportContent.batch-mode {
+    display: block; height: auto; min-height: 0; max-height: none;
+    overflow: visible; border: none; padding: 0;
+  }
+  .batch-print-report {
+    page-break-after: always; break-after: page;
+    page-break-inside: auto; break-inside: auto;
+    padding: 0; margin: 0;
+  }
+  .batch-print-report:last-child { page-break-after: auto; break-after: auto; }
+
+  .report-header { text-align: center; border-bottom: 2px solid #e8d6dc; padding-bottom: 4mm; margin-bottom: 3mm; }
+  .report-logo { max-width: 20mm !important; max-height: 20mm !important; width: auto; height: auto; object-fit: contain; display: block; margin: 0 auto 2mm; }
+  .report-header h2 { font-size: 17pt; margin: 2mm 0; }
+  .report-header h3 { font-size: 12pt; margin: 1.5mm 0; }
+  .report-header p { margin: 1mm 0; }
+  .report-student-info { display: flex; align-items: flex-start; gap: 5mm; margin: 3mm 0; }
+  .report-student-photo { width: 25mm; height: 30mm; object-fit: cover; border: 1px solid #e8d6dc; border-radius: 2mm; flex-shrink: 0; }
+  .report-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 2mm 5mm; margin: 0; font-size: 10.5pt; flex: 1; }
+  .report-meta div { padding: 2mm 3mm; background: #fff9f8; border-radius: 1.5mm; }
+  .report h3 { font-size: 11.5pt; margin: 3mm 0 1.5mm; }
+  .report p { font-size: 10.5pt; line-height: 1.5; margin: 1.5mm 0; overflow-wrap: anywhere; }
+  .report table { width: 100%; border-collapse: collapse; margin: 2mm 0 3mm; font-size: 10pt; }
+  .report th, .report td { border-bottom: 1px solid #e8d6dc; padding: 2.5mm 3mm; text-align: left; }
+  .report th { background: #f9edf1; white-space: nowrap; }
+  .report textarea { border: none; padding: 0; resize: none; overflow: visible; min-height: 0; }
+  @page { size: A4; margin: 12mm 10mm; }
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <div class="logo" id="logoBox">🌈</div>
+      <div>
+        <h1 id="appTitle">🌼 学前班成长报告系统</h1>
+        <div class="subtitle">KSPK Preschool Assessment & Growth Report</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="secondary" id="langBtn">Bahasa Melayu</button>
+      <button class="green" id="printBtn">🖨️ 打印 / PDF</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar no-print">
+      <section class="panel">
+        <h2 data-i18n="schoolSettings">🏫 学校资料</h2>
+        <div class="field">
+          <label data-i18n="schoolName">学校名称</label>
+          <input id="schoolName" placeholder="例如：Little Stars Kindergarten">
+        </div>
+        <div class="field">
+          <label data-i18n="teacherName">教师姓名</label>
+          <input id="teacherName" placeholder="教师姓名 / Nama guru">
+        </div>
+        <div class="field">
+          <label data-i18n="term">学期 / Tahun</label>
+          <input id="term" value="2026 Semester 1">
+        </div>
+        <div class="field">
+          <label data-i18n="schoolLogo">学校校徽</label>
+          <input type="file" id="logoUpload" accept="image/*">
+        </div>
+        <button class="green" id="saveSettings" data-i18n="saveSettings">保存学校资料</button>
+      </section>
+
+      <section class="panel">
+        <h2 data-i18n="addStudent">👧 学生管理</h2>
+        <input type="hidden" id="editId">
+        <div class="field">
+          <label data-i18n="studentName">学生姓名</label>
+          <input id="studentName" placeholder="学生姓名">
+        </div>
+        <div class="row">
+          <div class="field">
+            <label data-i18n="studentId">学生编号</label>
+            <input id="studentId" placeholder="S001">
+          </div>
+          <div class="field">
+            <label data-i18n="age">年龄</label>
+            <select id="studentAge">
+              <option value="4">4</option>
+              <option value="5" selected>5</option>
+              <option value="6">6</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>学生照片 / Foto Murid</label>
+          <input type="file" id="studentPhotoUpload" accept="image/*">
+          <img id="studentPhotoPreview" class="student-photo-preview" alt="学生照片预览">
+          <small>建议使用清晰的正面照片；图片会自动缩小后保存在此浏览器。<b>上传后请点「保存学生」或「保存修改」以写入报告。</b></small>
+        </div>
+        <div class="field">
+          <label data-i18n="className">班级</label>
+          <input id="studentClass" value="A 班">
+        </div>
+        <div class="field">
+          <label data-i18n="gender">性别</label>
+          <select id="studentGender">
+            <option value="女">女</option>
+            <option value="男">男</option>
+          </select>
+        </div>
+        <div class="actions">
+          <button id="addStudentBtn" data-i18n="saveStudent">＋ 保存学生</button>
+          <button class="secondary" id="clearForm" data-i18n="clear">清空</button>
+        </div>
+        <hr style="border:0;border-top:1px solid var(--border);margin:18px 0">
+        <div class="field">
+          <label data-i18n="searchStudent">搜索学生</label>
+          <input id="searchStudent" placeholder="输入姓名或编号">
+        </div>
+        <div class="field">
+          <label data-i18n="importCSV">批量导入学生 CSV</label>
+          <input type="file" id="csvUpload" accept=".csv,text/csv">
+        </div>
+        <small data-i18n="csvHelp">CSV 栏位顺序：姓名,编号,年龄,班级,性别</small>
+        <button type="button" class="secondary" id="toggleStudentList" aria-expanded="false" style="width:100%;margin-top:10px">显示学生名单 / 管理学生</button>
+        <div id="studentList" class="student-list hidden"></div>
+      </section>
+    </aside>
+
+    <main class="main">
+      <div class="stats no-print">
+        <div class="stat"><strong id="totalStudents">0</strong><span data-i18n="totalStudents">学生人数</span></div>
+        <div class="stat"><strong id="totalClasses">0</strong><span data-i18n="totalClasses">班级数量</span></div>
+        <div class="stat"><strong id="assessedCount">0</strong><span data-i18n="assessed">已评估学生</span></div>
+      </div>
+
+      <div class="tabs no-print">
+        <button class="active" data-tab="assessment" data-i18n="assessmentTab">📊 学习评估</button>
+        <button data-tab="analysis" data-i18n="analysisTab">📈 成绩分析</button>
+        <button data-tab="report" data-i18n="reportTab">📄 成长报告</button>
+      </div>
+
+      <!-- 学习评估 -->
+      <section id="assessmentPanel" class="panel no-print">
+        <h2 data-i18n="assessmentTitle">🌱 KSPK 学习领域评估</h2>
+        <p class="subtitle" data-i18n="assessmentHelp">选择学生，再依据 DSKP 的 Standard Prestasi 逐一选择表现等级。系统会自动计算每个领域的平均 TP。</p>
+        <div class="field">
+          <label data-i18n="selectStudent">当前学生</label>
+          <select id="activeStudent"></select>
+        </div>
+
+        <div class="pillar-grid" id="pillarGrid"></div>
+
+        <div class="field" style="margin-top:15px">
+          <div class="textarea-with-ai">
+            <div class="ai-toolbar">
+              <button type="button" class="ai-btn" data-ai="strengths">🤖 AI 建议</button>
+            </div>
+            <label data-i18n="strengths">学习优点与进步</label>
+            <textarea id="strengths" placeholder="记录孩子的兴趣、进步或亮点……"></textarea>
+            <div class="ai-hint" data-i18n="aiHintStrengths">点击「AI 建议」会根据当前评估自动生成草稿，可自行修改。</div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="textarea-with-ai">
+            <div class="ai-toolbar">
+              <button type="button" class="ai-btn" data-ai="improvement">🤖 AI 建议</button>
+            </div>
+            <label data-i18n="improvement">需要鼓励的方面</label>
+            <textarea id="improvement" placeholder="记录下一阶段的学习目标……"></textarea>
+            <div class="ai-hint" data-i18n="aiHintImprovement">点击「AI 建议」会根据当前评估自动生成草稿，可自行修改。</div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="textarea-with-ai">
+            <div class="ai-toolbar">
+              <button type="button" class="ai-btn" data-ai="comment">🤖 AI 建议</button>
+            </div>
+            <label data-i18n="teacherComment">教师学期评语</label>
+            <textarea id="teacherComment" placeholder="写下对孩子的鼓励与建议……"></textarea>
+            <div class="ai-hint" data-i18n="aiHintComment">点击「AI 建议」会根据当前评估自动生成草稿，可自行修改。</div>
+          </div>
+        </div>
+        <button class="green" id="saveAssessment" data-i18n="saveAssessment">保存评估与评语</button>
+      </section>
+
+      <!-- 成绩分析（选项卡：总分析 + 6 领域） -->
+      <section id="analysisPanel" class="panel no-print hidden">
+        <h2 data-i18n="analysisTitle">📈 成绩分析</h2>
+        <p class="subtitle" data-i18n="analysisHelp">点击上方按钮切换查看总分析或单个领域的 TP 分布。</p>
+
+        <div class="analysis-toolbar">
+          <label style="margin:0;display:flex;align-items:center;gap:6px">
+            <span data-i18n="filterClass">班级筛选</span>
+            <select id="filterClass">
+              <option value="" data-i18n="allClasses">全部班级</option>
+            </select>
+          </label>
+          <label style="margin:0;display:flex;align-items:center;gap:6px">
+            <span data-i18n="filterGender">性别</span>
+            <select id="filterGender">
+              <option value="" data-i18n="allGenders">全部</option>
+              <option value="男" data-i18n="male">男</option>
+              <option value="女" data-i18n="female">女</option>
+            </select>
+          </label>
+          <button class="secondary" id="refreshAnalysis" data-i18n="refreshAnalysis">重新计算</button>
+        </div>
+
+        <div class="analysis-tabs" id="analysisTabs"></div>
+        <div id="analysisContent"></div>
+      </section>
+
+      <!-- 成长报告 -->
+      <section id="reportPanel" class="panel hidden">
+        <div class="no-print actions" style="margin-bottom:15px">
+          <button id="refreshReport" data-i18n="refreshReport">更新报告</button>
+          <button class="green" id="printReport" data-i18n="printReport">打印此报告 / PDF</button>
+        </div>
+        <div id="reportContent" class="report"></div>
+      </section>
+    </main>
+  </div>
+  <footer>Designed for preschool learning · KSPK assessment support · Data saved in this browser</footer>
+</div>
+
+<script>
+(() => {
+"use strict";
+
+const STORAGE_KEY = "kspk_preschool_report_v3";
+
+const pillars = [
+  {
+    id: "sosioemosi", zh: "社会情绪", bm: "Sosioemosi", color: "#fff3f5",
+    sp: [
+      { id:"SE1", zh:"SE1: 展现正面的自我概念与自信", bm:"SE1: Menunjukkan konsep kendiri yang positif dan keyakinan terhadap kebolehan sendiri." },
+      { id:"SE2", zh:"SE2: 管理情绪与行为以适应日常生活", bm:"SE2: Mengurus emosi dan tingkah laku untuk menyesuaikan diri dalam kehidupan harian." },
+      { id:"SE3", zh:"SE3: 理解他人需求并能合作", bm:"SE3: Memahami keperluan orang lain dan dapat bekerjasama." },
+      { id:"SE4", zh:"SE4: 理解并展现对马来西亚多元社会的欣赏", bm:"SE4: Memahami dan menunjuk penghargaan kepada kepelbagaian masyarakat di Malaysia." }
+    ]
+  },
+  {
+    id: "fizikal", zh: "身体与健康", bm: "Fizikal dan Kesejahteraan Diri", color: "#fff5d5",
+    sp: [
+      { id:"FK1", zh:"FK1: 展现日常活动所需的粗大动作技能", bm:"FK1: Menunjukkan kecekapan dalam kemahiran motor kasar yang diperlukan untuk melakukan pelbagai aktiviti harian." },
+      { id:"FK2", zh:"FK2: 协调与控制精细动作", bm:"FK2: Mengkoordinasi dan mengawal motor halus untuk melakukan aktiviti atau pergerakan dengan lebih cekap dan tepat." },
+      { id:"FK3", zh:"FK3: 展现对自身安全的意识", bm:"FK3: Menunjukkan kesedaran tentang penjagaan keselamatan diri dalam aktiviti harian." },
+      { id:"FK4", zh:"FK4: 保持个人与环境卫生", bm:"FK4: Menjaga kebersihan diri dan persekitaran." },
+      { id:"FK5", zh:"FK5: 实践健康与安全的饮食习惯", bm:"FK5: Mengamalkan pemakanan sihat dan selamat." }
+    ]
+  },
+  {
+    id: "kerohanian", zh: "宗教、价值观与公民", bm: "Kerohanian, Nilai dan Kewarganegaraan", color: "#eaf5e8",
+    sp: [
+      { id:"PI1", zh:"PI1: 背诵 Juz Amma 选段", bm:"PI1: Menghafaz surah terpilih Juz Amma." },
+      { id:"PI2", zh:"PI2: 进行日常礼拜", bm:"PI2: Melakukan ibadah dalam kehidupan harian." },
+      { id:"PI3", zh:"PI3: 展现对 Allah 与先知穆罕默德的信仰", bm:"PI3: Menunjukkan cara beriman kepada Allah SWT dan Nabi Muhammad SAW." },
+      { id:"PI4", zh:"PI4: 展现良好的礼仪", bm:"PI4: Mengetahui dan menunjukkan adab yang baik dalam kehidupan." },
+      { id:"PM1", zh:"PM1: 实践爱的价值观", bm:"PM1: Mengamalkan nilai kasih sayang." },
+      { id:"PM2", zh:"PM2: 尊重他人", bm:"PM2: Menghormati orang lain." },
+      { id:"PM3", zh:"PM3: 在日常生活中诚实", bm:"PM3: Bersikap jujur dalam pergaulan seharian." },
+      { id:"PM4", zh:"PM4: 勤奋完成任务", bm:"PM4: Mengamalkan sikap rajin dalam menyelesaikan tugas yang diberi." },
+      { id:"KW1", zh:"KW1: 对家庭负责", bm:"KW1: Mengetahui dan melaksanakan tanggungjawab terhadap keluarga." },
+      { id:"KW2", zh:"KW2: 对社区负责", bm:"KW2: Mengetahui dan melaksanakan tanggungjawab terhadap komuniti." },
+      { id:"KW3", zh:"KW3: 对国家负责", bm:"KW3: Mengetahui dan melaksanakan tanggungjawab terhadap negara." }
+    ]
+  },
+  {
+    id: "bahasa", zh: "语言与读写", bm: "Bahasa dan Literasi", color: "#eaf1fc",
+    sp: [
+      { id:"BM1", zh:"BM1: 聆听并正确回应", bm:"BM1: Mendengar dan memberi respons yang betul dalam pelbagai situasi." },
+      { id:"BM2", zh:"BM2: 清晰有礼地说话", bm:"BM2: Bertutur secara jelas dan sopan dalam perbualan harian berdasarkan pelbagai situasi." },
+      { id:"BM3", zh:"BM3: 阅读并理解文本", bm:"BM3: Membaca dan memahami teks." },
+      { id:"BM4", zh:"BM4: 通过符号、图画和文字表达想法", bm:"BM4: Boleh menyampaikan idea melalui simbol, lukisan dan penulisan." },
+      { id:"BI1", zh:"BI1: 聆听、理解并适当回应", bm:"BI1: Listen, understand and respond appropriately in a variety of contexts." },
+      { id:"BI2", zh:"BI2: 适当回应不同目的的对话", bm:"BI2: Respond to conversations appropriately for different purposes." },
+      { id:"BI3", zh:"BI3: 阅读并理解印刷或数字文本", bm:"BI3: Read and understand texts or visuals in print or digital materials." },
+      { id:"BI4", zh:"BI4: 通过图画、符号或文字沟通想法", bm:"BI4: Communicate thoughts and information in drawings, symbols or writings." },
+      { id:"BC1", zh:"BC1: 以良好态度聆听并理解口语交流", bm:"BC1: 以良好的态度聆听并理解口语交流，作出适当的反应。" },
+      { id:"BC2", zh:"BC2: 以口语参与互动，有礼貌地沟通", bm:"BC2: 以口语参与互动，有礼貌地与人沟通。" },
+      { id:"BC3", zh:"BC3: 识别阅读媒介中的图像与文字", bm:"BC3: 能识别阅读媒介中的图像与文字，能认读和理解已学的汉字，乐于阅读。" },
+      { id:"BC4", zh:"BC4: 掌握正确执笔与书写规则", bm:"BC4: 掌握正确的执笔方法和坐姿，按基本的笔顺规则书写汉字。" },
+      { id:"BC5", zh:"BC5: 喜欢并尝试书面表达", bm:"BC5: 喜欢并尝试作书面表达。" }
+    ]
+  },
+  {
+    id: "kognitif", zh: "认知", bm: "Kognitif", color: "#f0eafa",
+    sp: [
+      { id:"KF1", zh:"KF1: 根据特征整理数学信息", bm:"KF1: Menyusun maklumat matematik dalam persekitaran berdasarkan ciri dan mencari perkaitan antara ciri tersebut." },
+      { id:"KF2", zh:"KF2: 理解数字概念与数量关系", bm:"KF2: Memahami hubungan konsep nombor dengan kuantiti dalam kehidupan harian." },
+      { id:"KF3", zh:"KF3: 展现好奇心与探索兴趣", bm:"KF3: Menunjukkan sifat ingin tahu dan minat untuk meneroka." },
+      { id:"KF4", zh:"KF4: 分析信息以识别自然现象成因", bm:"KF4: Menganalisis maklumat yang diperolehi untuk mengenal pasti punca kejadian alam." },
+      { id:"KF5", zh:"KF5: 将文化遗产与生活联系起来", bm:"KF5: Membuat hubung kait antara hasil warisan dengan kehidupan." },
+      { id:"KF6", zh:"KF6: 解决日常问题", bm:"KF6: Mempamerkan kemampuan menyelesaikan masalah harian berdasarkan maklumat yang diperolehi." },
+      { id:"KF7", zh:"KF7: 安全负责地使用数字设备", bm:"KF7: Mengendalikan peranti digital dengan selamat dan bertanggungjawab." }
+    ]
+  },
+  {
+    id: "kreativiti", zh: "创意与美学", bm: "Kreativiti dan Estetika", color: "#ffeadf",
+    sp: [
+      { id:"KE1", zh:"KE1: 运用创意制作视觉艺术作品", bm:"KE1: Menggunakan kreativiti dalam penghasilan karya seni visual." },
+      { id:"KE2", zh:"KE2: 展现对音乐与律动的兴趣与能力", bm:"KE2: Menunjukkan minat dan kebolehan dalam muzik dan gerakan." },
+      { id:"KE3", zh:"KE3: 在戏剧中扮演角色", bm:"KE3: Melakonkan watak dalam drama." },
+      { id:"KE4", zh:"KE4: 展现对艺术作品的欣赏", bm:"KE4: Menunjukkan penghargaan terhadap karya seni." }
+    ]
+  }
+];
+
+const interventionLibrary = {
+  sosioemosi: {
+    zh: [
+      "安排小组合作任务（如一起搭积木、合作画画），培养轮流与分享。",
+      "使用情绪卡片，帮助孩子识别并说出自己的感受。",
+      "设立「今日小帮手」，增强自信心与责任感。",
+      "通过角色扮演练习如何向同伴表达需求与道歉。"
+    ],
+    bm: [
+      "Atur tugasan kumpulan kecil (bina blok, melukis bersama) untuk melatih giliran dan perkongsian.",
+      "Gunakan kad emosi untuk membantu murid mengenal dan menyatakan perasaan.",
+      "Lantik 'Pembantu Hari Ini' untuk membina keyakinan dan tanggungjawab.",
+      "Main peranan untuk melatih cara menyatakan keperluan dan meminta maaf."
+    ]
+  },
+  fizikal: {
+    zh: [
+      "每天安排 15 分钟户外活动，练习跑、跳、攀爬等粗大动作。",
+      "使用剪刀、串珠、黏土等材料，加强精细动作与手眼协调。",
+      "通过「安全小卫士」游戏，学习识别危险与自我保护。",
+      "带领孩子练习洗手、刷牙、整理物品等日常自理活动。"
+    ],
+    bm: [
+      "Sediakan 15 minit aktiviti luar setiap hari untuk motor kasar (berlari, melompat, memanjat).",
+      "Gunakan gunting, manik, tanah liat untuk menguatkan motor halus dan koordinasi mata-tangan.",
+      "Permainan 'Pengawal Keselamatan' untuk mengenal bahaya dan melindungi diri.",
+      "Latih kemahiran menjaga diri: basuh tangan, berus gigi, mengemas barang."
+    ]
+  },
+  kerohanian: {
+    zh: [
+      "每天用 5–10 分钟进行简单祷告或诵读练习，建立规律。",
+      "通过故事与图片，介绍先知与良好品德的故事。",
+      "设立「礼貌小天使」奖励，鼓励说「请、谢谢、对不起」。",
+      "安排轮流负责班级小任务，培养责任感与公民意识。"
+    ],
+    bm: [
+      "Amalkan 5–10 minit doa atau bacaan ringkas setiap hari untuk membina rutin.",
+      "Gunakan cerita dan gambar untuk memperkenalkan akhlak mulia.",
+      "Wujudkan anugerah 'Malaikat Sopan' untuk menggalakkan 'tolong, terima kasih, maaf'.",
+      "Beri giliran tugasan kelas untuk membina tanggungjawab dan kesedaran sivik."
+    ]
+  },
+  bahasa: {
+    zh: [
+      "每天进行 10 分钟看图说话或朗读，增强口语与词汇。",
+      "使用字卡游戏（配对、找相同）加强识字与阅读兴趣。",
+      "通过写名字、描红、连线等活动，练习握笔与书写。",
+      "鼓励孩子用完整句子描述一天的趣事，家长与老师给予回应。"
+    ],
+    bm: [
+      "Buat 10 minit bercerita berdasarkan gambar atau bacaan setiap hari untuk memperkaya bahasa.",
+      "Permainan kad perkataan (padanan, cari sama) untuk menguatkan literasi.",
+      "Latihan menulis nama, menekap, menyambung titik untuk kemahiran menulis.",
+      "Galakkan murid bercerita dengan ayat lengkap; guru dan ibu bapa memberi respons."
+    ]
+  },
+  kognitif: {
+    zh: [
+      "通过分类、配对、排序游戏（如按颜色/形状/大小）建立逻辑思维。",
+      "利用日常物品进行数数与简单加减练习（1–10 或 1–20）。",
+      "安排「小小科学家」活动，鼓励观察、提问与记录。",
+      "使用安全的教学 App 或数字教具，指导正确使用数字设备。"
+    ],
+    bm: [
+      "Permainan mengelaskan, memadankan, menyusun (warna, bentuk, saiz) untuk membina logik.",
+      "Gunakan objek harian untuk mengira dan operasi tambah/tolak mudah (1–10 atau 1–20).",
+      "Aktiviti 'Saintis Cilik' untuk menggalakkan pemerhatian, soalan dan catatan.",
+      "Gunakan aplikasi pengajaran yang selamat untuk kemahiran digital."
+    ]
+  },
+  kreativiti: {
+    zh: [
+      "提供多种材料（水彩、蜡笔、黏土、回收物）自由创作。",
+      "每天安排音乐律动时间，鼓励跟随节奏做动作。",
+      "通过简单角色扮演或童话剧，让孩子扮演不同角色。",
+      "展示孩子的作品并给予具体赞美，培养审美与自信。"
+    ],
+    bm: [
+      "Sediakan pelbagai bahan (cat air, krayon, tanah liat, bahan kitar semula) untuk kreativiti bebas.",
+      "Jadualkan masa muzik dan gerakan setiap hari untuk mengikut irama.",
+      "Main peranan atau drama cerita dongeng mudah.",
+      "Pamerkan hasil karya murid dan beri pujian khusus untuk membina estetika dan keyakinan."
+    ]
+  }
+};
+
+const translations = {
+  zh: {
+    schoolSettings:"🏫 学校资料", schoolName:"学校名称", teacherName:"教师姓名",
+    term:"学期 / 年份", schoolLogo:"学校校徽", saveSettings:"保存学校资料",
+    addStudent:"👧 学生管理", studentName:"学生姓名", studentId:"学生编号",
+    age:"年龄", className:"班级", gender:"性别", saveStudent:"＋ 保存学生",
+    clear:"清空", searchStudent:"搜索学生", importCSV:"批量导入学生 CSV",
+    csvHelp:"CSV 栏位顺序：姓名,编号,年龄,班级,性别",
+    totalStudents:"学生人数", totalClasses:"班级数量", assessed:"已评估学生",
+    assessmentTab:"📊 学习评估", analysisTab:"📈 成绩分析", reportTab:"📄 成长报告",
+    assessmentTitle:"🌱 KSPK 学习领域评估",
+    assessmentHelp:"选择学生，再依据 DSKP 的 Standard Prestasi 逐一选择表现等级。系统会自动计算每个领域的平均 TP。",
+    selectStudent:"当前学生", strengths:"学习优点与进步",
+    improvement:"需要鼓励的方面", teacherComment:"教师学期评语",
+    saveAssessment:"保存评估与评语", refreshReport:"更新报告",
+    printReport:"打印此报告 / PDF", noStudents:"请先添加学生。",
+    levels:["请选择","TP1 - 需要协助","TP2 - 正在发展","TP3 - 达到预期"],
+    reportTitle:"学生成长与学习评估报告", student:"学生姓名",
+    studentNo:"学生编号", ageLabel:"年龄", classLabel:"班级",
+    genderLabel:"性别", termLabel:"学期", teacherLabel:"教师",
+    domain:"KSPK 学习领域", level:"评估等级",
+    strengthsLabel:"学习优点与进步", improvementLabel:"下一阶段学习目标",
+    commentLabel:"教师评语", signature:"教师签名", date:"日期",
+    male:"男", female:"女", noComment:"尚未填写。",
+    added:"学生已保存。", deleted:"已删除学生。", saved:"资料已保存。",
+    confirmDelete:"确定要删除这位学生吗？",
+    importDone:"批量导入完成。", invalidFile:"无法读取文件。",
+    chooseStudent:"请先选择学生。", noAssessments:"尚未完成评估。",
+    demo:"示范数据", languageBtn:"Bahasa Melayu",
+    averageLabel:"平均 TP: ", notAssessed:"尚未评估",
+    bulkLabel:"批量设为",
+    aiHintStrengths:"点击「AI 建议」会根据当前评估自动生成草稿，可自行修改。",
+    aiHintImprovement:"点击「AI 建议」会根据当前评估自动生成草稿，可自行修改。",
+    aiHintComment:"点击「AI 建议」会根据当前评估自动生成草稿，可自行修改。",
+    aiNoStudent:"请先选择学生，再生成 AI 建议。",
+    aiNoGrades:"该学生尚未有任何评估等级，建议先完成评估再使用 AI 建议。",
+    aiDone:"已生成 AI 建议草稿，请自行修改。",
+    analysisTitle:"📈 成绩分析",
+    analysisHelp:"点击上方按钮切换查看总分析或单个领域的 TP 分布。",
+    filterClass:"班级筛选", filterGender:"性别",
+    allClasses:"全部班级", allGenders:"全部",
+    refreshAnalysis:"重新计算",
+    tp1Label:"TP1 需要协助", tp2Label:"TP2 正在发展",
+    tp3Label:"TP3 达到预期", naLabel:"未评估",
+    interventionTitle:"🚨 需要干预的学生（重点 TP1）",
+    noIntervention:"目前没有需要特别干预的学生，全班表现良好。",
+    openAssessment:"前往评估",
+    spCount:"SP 数量", totalSPs:"SP 总数", totalSP:"合计",
+    avgLabel:"领域平均 TP",
+    summaryLine:"共 {total} 个 SP 评估记录，已评估 {assessed} 条；TP1 {tp1}、TP2 {tp2}、TP3 {tp3}、未评估 {na}。",
+    attentionPillars:"需关注领域：",
+    overallTab:"总分析",
+    perPillarAnalysis:"各领域柱状图",
+    spDetailTitle:"各 SP 的 TP 数量明细",
+    studentDetailTitle:"各学生的 TP 数量",
+    studentCol:"学生",
+    avgCol:"领域平均",
+    interventionSuggest:"干预活动建议"
+  },
+  bm: {
+    schoolSettings:"🏫 Maklumat Sekolah", schoolName:"Nama Sekolah",
+    teacherName:"Nama Guru", term:"Penggal / Tahun", schoolLogo:"Logo Sekolah",
+    saveSettings:"Simpan Maklumat Sekolah", addStudent:"👧 Pengurusan Murid",
+    studentName:"Nama Murid", studentId:"Nombor Murid", age:"Umur",
+    className:"Kelas", gender:"Jantina", saveStudent:"＋ Simpan Murid",
+    clear:"Kosongkan", searchStudent:"Cari Murid", importCSV:"Import Murid CSV",
+    csvHelp:"Susunan CSV: Nama,Nombor,Umur,Kelas,Jantina",
+    totalStudents:"Jumlah Murid", totalClasses:"Jumlah Kelas",
+    assessed:"Murid Dinilai", assessmentTab:"📊 Penilaian",
+    analysisTab:"📈 Analisis", reportTab:"📄 Laporan Perkembangan",
+    assessmentTitle:"🌱 Penilaian KSPK",
+    assessmentHelp:"Pilih murid dan tahap penguasaan bagi setiap Standard Prestasi. Sistem akan mengira purata TP bagi setiap bidang.",
+    selectStudent:"Murid Semasa", strengths:"Kekuatan dan Kemajuan",
+    improvement:"Aspek untuk Dipertingkat", teacherComment:"Ulasan Guru",
+    saveAssessment:"Simpan Penilaian", refreshReport:"Kemas Kini Laporan",
+    printReport:"Cetak / Simpan PDF", noStudents:"Sila tambah murid terlebih dahulu.",
+    levels:["Pilih tahap","TP1 - Memerlukan bimbingan","TP2 - Sedang berkembang","TP3 - Mengikut jangkaan"],
+    reportTitle:"Laporan Perkembangan dan Penilaian Murid",
+    student:"Nama Murid", studentNo:"Nombor Murid", ageLabel:"Umur",
+    classLabel:"Kelas", genderLabel:"Jantina", termLabel:"Penggal",
+    teacherLabel:"Guru", domain:"Bidang Pembelajaran KSPK",
+    level:"Tahap Penguasaan", strengthsLabel:"Kekuatan dan Kemajuan",
+    improvementLabel:"Matlamat Pembelajaran Seterusnya", commentLabel:"Ulasan Guru",
+    signature:"Tandatangan Guru", date:"Tarikh", male:"Lelaki",
+    female:"Perempuan", noComment:"Belum diisi.", added:"Murid disimpan.",
+    deleted:"Murid dipadam.", saved:"Maklumat disimpan.",
+    confirmDelete:"Padam murid ini?", importDone:"Import selesai.",
+    invalidFile:"Fail tidak dapat dibaca.", chooseStudent:"Sila pilih murid.",
+    noAssessments:"Penilaian belum lengkap.", demo:"Data Contoh",
+    languageBtn:"中文",
+    averageLabel:"Purata TP: ", notAssessed:"Belum dinilai",
+    bulkLabel:"Tetapkan semua",
+    aiHintStrengths:"Klik「AI Cadangan」untuk menjana draf berdasarkan penilaian semasa; boleh diubah suai.",
+    aiHintImprovement:"Klik「AI Cadangan」untuk menjana draf berdasarkan penilaian semasa; boleh diubah suai.",
+    aiHintComment:"Klik「AI Cadangan」untuk menjana draf berdasarkan penilaian semasa; boleh diubah suai.",
+    aiNoStudent:"Sila pilih murid dahulu sebelum menjana cadangan AI.",
+    aiNoGrades:"Murid ini belum ada penilaian; sila selesaikan penilaian dahulu.",
+    aiDone:"Draf cadangan AI telah dijana, sila ubah suai.",
+    analysisTitle:"📈 Analisis Pencapaian",
+    analysisHelp:"Klik butang di atas untuk melihat analisis keseluruhan atau setiap bidang.",
+    filterClass:"Tapis Kelas", filterGender:"Jantina",
+    allClasses:"Semua Kelas", allGenders:"Semua",
+    refreshAnalysis:"Kira Semula",
+    tp1Label:"TP1 Perlu bimbingan", tp2Label:"TP2 Sedang berkembang",
+    tp3Label:"TP3 Mengikut jangkaan", naLabel:"Belum dinilai",
+    interventionTitle:"🚨 Murid Memerlukan Intervensi (Fokus TP1)",
+    noIntervention:"Tiada murid yang memerlukan intervensi khas buat masa ini.",
+    openAssessment:"Pergi Penilaian",
+    spCount:"Bilangan SP", totalSPs:"Jumlah SP", totalSP:"Jumlah",
+    avgLabel:"Purata TP bidang",
+    summaryLine:"Jumlah {total} rekod SP, dinilai {assessed}; TP1 {tp1}, TP2 {tp2}, TP3 {tp3}, belum dinilai {na}.",
+    attentionPillars:"Bidang perhatian：",
+    overallTab:"Keseluruhan",
+    perPillarAnalysis:"Carta Setiap Bidang",
+    spDetailTitle:"Pecahan TP setiap SP",
+    studentDetailTitle:"Pecahan TP setiap murid",
+    studentCol:"Murid",
+    avgCol:"Purata",
+    interventionSuggest:"Cadangan Aktiviti Intervensi"
+  }
+};
+
+let lang = "zh";
+let activeTab = "assessment";
+let analysisActiveId = "overall";
+let logoData = "";
+let studentPhotoData = "";
+let students = [];
+let settings = {
+  schoolName: "Little Stars Kindergarten",
+  teacherName: "Teacher",
+  term: "2026 Semester 1"
+};
+
+const $ = id => document.getElementById(id);
+const t = key => translations[lang][key] || key;
+
+function pillarAverage(grades, pillar) {
+  const values = pillar.sp.map(sp => Number(grades[sp.id]) || 0).filter(v => v > 0);
+  if (!values.length) return 0;
+  const sum = values.reduce((a, b) => a + b, 0);
+  return Math.round(sum / values.length);
+}
+
+function newStudent(data = {}) {
+  const defaultGrades = {};
+  pillars.forEach(p => { p.sp.forEach(sp => { defaultGrades[sp.id] = 0; }); });
+
+  return {
+    id: data.id || ("S" + Math.random().toString(36).slice(2,7).toUpperCase()),
+    name: data.name || "",
+    number: data.number || "",
+    age: String(data.age || 5),
+    className: data.className || "A 班",
+    gender: data.gender || "女",
+    photo: data.photo || "",
+    grades: { ...defaultGrades, ...(data.grades || {}) },
+    strengths: data.strengths || "",
+    improvement: data.improvement || "",
+    comment: data.comment || ""
+  };
+}
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, ch => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+  }[ch]));
+}
+
+function saveData() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ students, settings, logoData }));
+  } catch (error) {
+    alert("无法保存资料。校徽或学生照片可能太大，请换用较小的图片。");
+  }
+}
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const data = JSON.parse(raw);
+      students = Array.isArray(data.students) ? data.students : [];
+      settings = { ...settings, ...(data.settings || {}) };
+      logoData = data.logoData || "";
+    }
+  } catch (error) {
+    console.warn("无法读取本地资料", error);
+  }
+
+  if (!students.length) {
+    students = [
+      newStudent({
+        name:"陈小美", number:"S001", age:5, className:"A 班", gender:"女",
+        grades:{
+          SE1:3, SE2:3, SE3:2, SE4:3,
+          FK1:2, FK2:3, FK3:3, FK4:2, FK5:3,
+          PI1:0, PI2:0, PI3:0, PI4:0,
+          PM1:3, PM2:3, PM3:2, PM4:3,
+          KW1:3, KW2:2, KW3:3,
+          BM1:3, BM2:2, BM3:3, BM4:2,
+          BI1:2, BI2:3, BI3:2, BI4:3,
+          BC1:3, BC2:3, BC3:2, BC4:3, BC5:3,
+          KF1:2, KF2:3, KF3:3, KF4:2, KF5:3, KF6:2, KF7:3,
+          KE1:3, KE2:3, KE3:2, KE4:3
+        },
+        strengths:"乐于参与集体活动，喜欢绘画，也能主动与同伴分享。",
+        improvement:"继续练习表达完整句子，并加强数数与分类活动。",
+        comment:"小美在本学期有明显进步。希望她继续保持好奇心，勇敢表达自己的想法。"
+      }),
+      newStudent({
+        name:"Ahmad", number:"S002", age:5, className:"A 班", gender:"男",
+        grades:{
+          SE1:2, SE2:3, SE3:3, SE4:2,
+          FK1:3, FK2:2, FK3:3, FK4:3, FK5:2,
+          PI1:3, PI2:2, PI3:3, PI4:3,
+          PM1:0, PM2:0, PM3:0, PM4:0,
+          KW1:2, KW2:3, KW3:3,
+          BM1:2, BM2:3, BM3:2, BM4:3,
+          BI1:3, BI2:2, BI3:3, BI4:2,
+          BC1:0, BC2:0, BC3:0, BC4:0, BC5:0,
+          KF1:3, KF2:2, KF3:3, KF4:3, KF5:2, KF6:3, KF7:2,
+          KE1:2, KE2:3, KE3:3, KE4:2
+        },
+        strengths:"Aktif dalam aktiviti fizikal dan suka bekerjasama dengan rakan.",
+        improvement:"Teruskan latihan bahasa dan aktiviti mengenal nombor.",
+        comment:"Ahmad menunjukkan sikap yang positif dan semakin yakin menyertai aktiviti kelas."
+      })
+    ];
+    saveData();
+  }
+}
+
+function applySettings() {
+  $("schoolName").value = settings.schoolName;
+  $("teacherName").value = settings.teacherName;
+  $("term").value = settings.term;
+  $("logoBox").innerHTML = logoData ? `<img src="${logoData}" alt="Logo sekolah">` : "🌈";
+}
+
+function renderStats() {
+  $("totalStudents").textContent = students.length;
+  $("totalClasses").textContent = new Set(students.map(s => s.className)).size;
+  $("assessedCount").textContent = students.filter(s =>
+    pillars.every(p => pillarAverage(s.grades, p) >= 1)
+  ).length;
+}
+
+function renderStudentList() {
+  const query = $("searchStudent").value.trim().toLowerCase();
+  const selectedId = $("activeStudent").value;
+  const filtered = students.filter(s =>
+    (s.name + " " + s.number + " " + s.className).toLowerCase().includes(query)
+  );
+
+  const listTools = `
+    <div class="actions" style="margin-bottom:8px;align-items:center">
+      <label style="display:flex;align-items:center;gap:6px;margin:0;color:var(--ink)">
+        <input type="checkbox" id="selectAllVisible" style="width:auto" /> 全选当前列表
+      </label>
+      <button type="button" class="secondary" data-action="batch-print">🖨️ 批量打印</button>
+      <button type="button" class="danger" data-action="batch-delete">批量删除</button>
+    </div>`;
+  $("studentList").innerHTML = filtered.length ? listTools + filtered.map(s => `
+    <div class="student-item ${s.id === selectedId ? "selected" : ""}">
+      <div style="display:flex;align-items:center;gap:8px;min-width:0">
+        <input type="checkbox" class="student-check" data-student-check="${escapeHTML(s.id)}" aria-label="选择 ${escapeHTML(s.name)}" style="width:auto;flex-shrink:0" />
+        ${s.photo
+          ? `<img src="${escapeHTML(s.photo)}" class="student-thumb" alt="">`
+          : `<div class="student-thumb" style="display:flex;align-items:center;justify-content:center;background:#f5eff2;color:#bbb;font-size:16px">👤</div>`}
+        <div style="min-width:0">
+          <div class="student-name" data-action="select" data-id="${escapeHTML(s.id)}">${escapeHTML(s.name)}</div>
+          <div class="student-id">${escapeHTML(s.number)} · ${escapeHTML(s.className)}</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="secondary" data-action="edit" data-id="${escapeHTML(s.id)}" title="编辑">✏️</button>
+        <button class="danger" data-action="delete" data-id="${escapeHTML(s.id)}" title="删除">×</button>
+      </div>
+    </div>
+  `).join("") : `<div class="empty">${escapeHTML(t("noStudents"))}</div>`;
+
+  const current = $("activeStudent").value;
+  $("activeStudent").innerHTML = students.map(s =>
+    `<option value="${escapeHTML(s.id)}">${escapeHTML(s.name)} (${escapeHTML(s.number)})</option>`
+  ).join("");
+
+  if (students.some(s => s.id === current)) $("activeStudent").value = current;
+  else if (students.length) $("activeStudent").value = students[0].id;
+
+  const classSel = $("filterClass");
+  if (classSel) {
+    const classes = [...new Set(students.map(s => s.className))].filter(Boolean);
+    const currentClass = classSel.value;
+    classSel.innerHTML = `<option value="">${escapeHTML(t("allClasses"))}</option>` +
+      classes.map(c => `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join("");
+    if (classes.includes(currentClass)) classSel.value = currentClass;
+  }
+
+  renderStats();
+}
+
+function currentStudent() {
+  return students.find(s => s.id === $("activeStudent").value) || null;
+}
+
+function renderGrades() {
+  const s = currentStudent();
+  if (!s) {
+    $("pillarGrid").innerHTML = `<div class="empty">${escapeHTML(t("noStudents"))}</div>`;
+    $("strengths").value = "";
+    $("improvement").value = "";
+    $("teacherComment").value = "";
+    return;
+  }
+
+  const bulkOptions = `
+    <option value="">${escapeHTML(t("bulkLabel"))}…</option>
+    <option value="3">TP3</option>
+    <option value="2">TP2</option>
+    <option value="1">TP1</option>
+  `;
+
+  $("pillarGrid").innerHTML = pillars.map(p => {
+    const spHTML = p.sp.map(sp => `
+      <div class="sp-item">
+        <label>${escapeHTML(lang === "zh" ? sp.zh : sp.bm)}</label>
+        <select data-grade="${sp.id}" aria-label="${escapeHTML(sp.zh)}">
+          ${translations[lang].levels.map((label, index) => `
+            <option value="${index}" ${Number(s.grades[sp.id]) === index ? "selected" : ""}>
+              ${escapeHTML(label)}
+            </option>
+          `).join("")}
+        </select>
+      </div>
+    `).join("");
+
+    const avg = pillarAverage(s.grades, p);
+    const avgLabel = avg
+      ? translations[lang].levels[avg]
+      : (lang === "zh" ? "尚未评估" : "Belum dinilai");
+
+    return `
+      <div class="pillar" style="background:${p.color}">
+        <div class="pillar-header">
+          <h3>${escapeHTML(lang === "zh" ? p.zh : p.bm)}</h3>
+          <div class="pillar-bulk">
+            <select data-bulk-pillar="${p.id}">${bulkOptions}</select>
+          </div>
+        </div>
+        <small>${escapeHTML(lang === "zh" ? p.bm : p.zh)}</small>
+        <div class="sp-list">${spHTML}</div>
+        <div class="pillar-average" data-pillar-average="${p.id}">
+          ${escapeHTML(t("averageLabel"))}${escapeHTML(avgLabel)}
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  $("strengths").value = s.strengths;
+  $("improvement").value = s.improvement;
+  $("teacherComment").value = s.comment;
+}
+
+function saveCurrentAssessment() {
+  const s = currentStudent();
+  if (!s) return alert(t("chooseStudent"));
+
+  $("pillarGrid").querySelectorAll("[data-grade]").forEach(select => {
+    s.grades[select.dataset.grade] = Number(select.value);
+  });
+
+  s.strengths = $("strengths").value;
+  s.improvement = $("improvement").value;
+  s.comment = $("teacherComment").value;
+
+  saveData();
+  renderStats();
+  renderReport();
+  renderAnalysis();
+  alert(t("saved"));
+}
+
+/* ============ AI 建议 ============ */
+function getStudentSummary(s) {
+  const summary = pillars.map(p => {
+    const avg = pillarAverage(s.grades, p);
+    return { pillar: p, avg };
+  });
+  const assessedPillars = summary.filter(x => x.avg > 0);
+  const strong = assessedPillars.filter(x => x.avg === 3).map(x => x.pillar);
+  const mid = assessedPillars.filter(x => x.avg === 2).map(x => x.pillar);
+  const weak = assessedPillars.filter(x => x.avg === 1).map(x => x.pillar);
+  const overallAvg = assessedPillars.length
+    ? assessedPillars.reduce((a, b) => a + b.avg, 0) / assessedPillars.length
+    : 0;
+  return { summary, strong, mid, weak, assessedPillars, overallAvg };
+}
+
+function generateStrengths(s) {
+  const { strong, mid, overallAvg } = getStudentSummary(s);
+  if (!strong.length && !mid.length) {
+    return lang === "zh"
+      ? `${s.name} 在本学期积极参与课堂活动，愿意尝试老师安排的学习任务。`
+      : `${s.name} mengambil bahagian secara aktif dalam aktiviti kelas dan bersedia mencuba tugasan yang diberikan.`;
+  }
+  if (lang === "zh") {
+    const parts = [];
+    if (strong.length) parts.push(`${s.name} 在${strong.map(p => p.zh).join("、")}方面表现优秀，达到 TP3 水平。`);
+    if (mid.length) parts.push(`在${mid.map(p => p.zh).join("、")}方面稳步发展，已能掌握基本要求。`);
+    parts.push(`整体学习态度积极，平均 TP 为 ${overallAvg.toFixed(1)}，值得鼓励。`);
+    return parts.join("");
+  } else {
+    const parts = [];
+    if (strong.length) parts.push(`${s.name} menunjukkan pencapaian cemerlang dalam ${strong.map(p => p.bm).join(", ")} (TP3).`);
+    if (mid.length) parts.push(`Berkembang baik dalam ${mid.map(p => p.bm).join(", ")} dan telah menguasai keperluan asas.`);
+    parts.push(`Sikap pembelajaran positif dengan purata TP ${overallAvg.toFixed(1)}.`);
+    return parts.join(" ");
+  }
+}
+
+function generateImprovement(s) {
+  const { weak, mid, strong } = getStudentSummary(s);
+  if (!weak.length && !mid.length && !strong.length) {
+    return lang === "zh"
+      ? `建议下一阶段多参与课堂活动，尝试在${s.name}感兴趣的领域多加练习。`
+      : `Dicadangkan supaya ${s.name} lebih banyak menyertai aktiviti kelas dan berlatih dalam bidang yang diminati.`;
+  }
+  if (lang === "zh") {
+    const parts = [];
+    if (weak.length) parts.push(`建议在${weak.map(p => p.zh).join("、")}方面给予更多引导与练习，逐步提升至 TP2 以上。`);
+    if (mid.length) parts.push(`在${mid.map(p => p.zh).join("、")}方面可通过日常活动巩固，向 TP3 迈进。`);
+    if (strong.length && !weak.length) parts.push(`继续保持${strong.map(p => p.zh).join("、")}的优势，并尝试将能力迁移到其他领域。`);
+    if (!parts.length) parts.push(`建议多给予鼓励与具体示范，帮助孩子建立学习信心。`);
+    return parts.join("");
+  } else {
+    const parts = [];
+    if (weak.length) parts.push(`Cadangan memberi lebih bimbingan dan latihan dalam ${weak.map(p => p.bm).join(", ")} untuk meningkat ke TP2.`);
+    if (mid.length) parts.push(`Kukuhkan ${mid.map(p => p.bm).join(", ")} melalui aktiviti harian untuk mencapai TP3.`);
+    if (strong.length && !weak.length) parts.push(`Kekalkan kekuatan dalam ${strong.map(p => p.bm).join(", ")} dan cuba pindahkan kemahiran ke bidang lain.`);
+    if (!parts.length) parts.push(`Beri lebih galakan dan contoh konkrit untuk membina keyakinan murid.`);
+    return parts.join(" ");
+  }
+}
+
+function generateComment(s) {
+  const { strong, weak, mid, overallAvg } = getStudentSummary(s);
+  const genderZh = s.gender === "男" ? "他" : "她";
+  const genderBm = "dia";
+  if (lang === "zh") {
+    const lines = [];
+    lines.push(`${s.name} 在本学期整体表现${overallAvg >= 2.5 ? "良好" : overallAvg >= 1.8 ? "稳定" : "尚需加强"}，平均 TP 为 ${overallAvg.toFixed(1)}。`);
+    if (strong.length) lines.push(`${genderZh}在${strong.map(p => p.zh).join("、")}方面表现突出，值得肯定。`);
+    if (weak.length) lines.push(`希望${genderZh}在${weak.map(p => p.zh).join("、")}方面继续努力，老师会给予更多支持与鼓励。`);
+    else if (mid.length) lines.push(`期望${genderZh}在${mid.map(p => p.zh).join("、")}方面持续进步，勇敢尝试新的挑战。`);
+    else lines.push(`期望${genderZh}保持好奇心与学习热情，勇敢表达自己的想法。`);
+    lines.push(`祝${genderZh}在下一阶段继续快乐学习、健康成长！`);
+    return lines.join("");
+  } else {
+    const lines = [];
+    lines.push(`Prestasi keseluruhan ${s.name} pada penggal ini adalah ${overallAvg >= 2.5 ? "baik" : overallAvg >= 1.8 ? "stabil" : "perlu dipertingkat"} dengan purata TP ${overallAvg.toFixed(1)}.`);
+    if (strong.length) lines.push(`${genderBm} menonjol dalam ${strong.map(p => p.bm).join(", ")} dan patut dipuji.`);
+    if (weak.length) lines.push(`Harap ${genderBm} terus berusaha dalam ${weak.map(p => p.bm).join(", ")}; guru akan memberi sokongan.`);
+    else if (mid.length) lines.push(`Diharapkan ${genderBm} terus maju dalam ${mid.map(p => p.bm).join(", ")} dan berani mencuba cabaran baharu.`);
+    else lines.push(`Diharapkan ${genderBm} kekal ingin tahu dan bersemangat untuk belajar.`);
+    lines.push(`Semoga ${genderBm} terus belajar dengan gembira dan membesar dengan sihat!`);
+    return lines.join(" ");
+  }
+}
+
+function applyAISuggestion(type) {
+  const s = currentStudent();
+  if (!s) return alert(t("aiNoStudent"));
+  const hasAnyGrade = pillars.some(p => pillarAverage(s.grades, p) > 0);
+  if (!hasAnyGrade) return alert(t("aiNoGrades"));
+
+  let text = "";
+  if (type === "strengths") text = generateStrengths(s);
+  else if (type === "improvement") text = generateImprovement(s);
+  else if (type === "comment") text = generateComment(s);
+
+  if (type === "strengths") $("strengths").value = text;
+  else if (type === "improvement") $("improvement").value = text;
+  else if (type === "comment") $("teacherComment").value = text;
+
+  s.strengths = $("strengths").value;
+  s.improvement = $("improvement").value;
+  s.comment = $("teacherComment").value;
+  saveData();
+  renderReport();
+  alert(t("aiDone"));
+}
+
+/* ============================================================
+   成绩分析 —— 总分析 + 6 领域选项卡
+   ============================================================ */
+function getFilteredStudents() {
+  const cls = $("filterClass").value;
+  const gen = $("filterGender").value;
+  return students.filter(s =>
+    (!cls || s.className === cls) &&
+    (!gen || s.gender === gen)
+  );
+}
+
+function computeSinglePillarStats(list, pillar) {
+  let tp1 = 0, tp2 = 0, tp3 = 0, na = 0;
+  list.forEach(s => {
+    pillar.sp.forEach(sp => {
+      const v = Number(s.grades[sp.id]) || 0;
+      if (v === 3) tp3++;
+      else if (v === 2) tp2++;
+      else if (v === 1) tp1++;
+      else na++;
+    });
+  });
+  const total = tp1 + tp2 + tp3 + na;
+  const assessed = tp1 + tp2 + tp3;
+  const avg = assessed ? ((tp1 * 1 + tp2 * 2 + tp3 * 3) / assessed) : 0;
+
+  const perSP = pillar.sp.map(sp => {
+    let s1 = 0, s2 = 0, s3 = 0, sn = 0;
+    list.forEach(s => {
+      const v = Number(s.grades[sp.id]) || 0;
+      if (v === 3) s3++;
+      else if (v === 2) s2++;
+      else if (v === 1) s1++;
+      else sn++;
+    });
+    return { sp, tp1: s1, tp2: s2, tp3: s3, na: sn, total: s1 + s2 + s3 + sn };
+  });
+
+  const perStudent = list.map(s => {
+    let s1 = 0, s2 = 0, s3 = 0, sn = 0;
+    pillar.sp.forEach(sp => {
+      const v = Number(s.grades[sp.id]) || 0;
+      if (v === 3) s3++;
+      else if (v === 2) s2++;
+      else if (v === 1) s1++;
+      else sn++;
+    });
+    return { student: s, tp1: s1, tp2: s2, tp3: s3, na: sn, total: s1 + s2 + s3 + sn };
+  });
+
+  return { pillar, tp1, tp2, tp3, na, total, assessed, avg, perSP, perStudent };
+}
+
+function computeOverallStats(list) {
+  let tp1 = 0, tp2 = 0, tp3 = 0, na = 0;
+  pillars.forEach(p => {
+    list.forEach(s => {
+      p.sp.forEach(sp => {
+        const v = Number(s.grades[sp.id]) || 0;
+        if (v === 3) tp3++;
+        else if (v === 2) tp2++;
+        else if (v === 1) tp1++;
+        else na++;
+      });
+    });
+  });
+  const total = tp1 + tp2 + tp3 + na;
+  const assessed = tp1 + tp2 + tp3;
+  const avg = assessed ? ((tp1 * 1 + tp2 * 2 + tp3 * 3) / assessed) : 0;
+  return { tp1, tp2, tp3, na, total, assessed, avg };
+}
+
+function renderAnalysisTabs(list) {
+  const overall = computeOverallStats(list);
+  let html = `<button data-analysis="overall" class="${analysisActiveId === "overall" ? "active" : ""}">
+    ${escapeHTML(t("overallTab"))}
+    <span class="count-badge ${overall.tp1 ? "" : "ok"}">TP1 ${overall.tp1}</span>
+  </button>`;
+
+  pillars.forEach((p, idx) => {
+    const st = computeSinglePillarStats(list, p);
+    const active = analysisActiveId === p.id ? "active" : "";
+    const badgeClass = st.tp1 ? "" : "ok";
+    html += `<button data-analysis="${escapeHTML(p.id)}" class="${active}">
+      ${idx + 1}. ${escapeHTML(lang === "zh" ? p.zh : p.bm)}
+      <span class="count-badge ${badgeClass}">TP1 ${st.tp1}</span>
+    </button>`;
+  });
+
+  $("analysisTabs").innerHTML = html;
+}
+
+function renderPillarBars(st) {
+  const maxCount = Math.max(1, st.tp3, st.tp2, st.tp1, st.na);
+  const bar = (val, cls) => {
+    const h = Math.round((val / maxCount) * 100);
+    return `<div class="bidang-bar-col">
+      <div class="bar-value">${val}</div>
+      <div class="bar ${cls}" style="height:${h}%"></div>
+    </div>`;
+  };
+  return `
+    <div class="bidang-bar-chart">
+      ${bar(st.tp3, "tp3")}
+      ${bar(st.tp2, "tp2")}
+      ${bar(st.tp1, "tp1")}
+      ${bar(st.na,  "na")}
+    </div>
+    <div class="bidang-bar-labels">
+      <div class="lbl">TP3</div>
+      <div class="lbl">TP2</div>
+      <div class="lbl">TP1</div>
+      <div class="lbl">NA</div>
+    </div>
+  `;
+}
+
+function renderPillarAnalysis(list, pillar) {
+  const st = computeSinglePillarStats(list, pillar);
+  const avgTxt = st.avg ? st.avg.toFixed(1) : "—";
+  const assessed = st.tp1 + st.tp2 + st.tp3;
+  const summaryLine = t("summaryLine")
+    .replace("{total}", st.total)
+    .replace("{assessed}", assessed)
+    .replace("{tp1}", st.tp1)
+    .replace("{tp2}", st.tp2)
+    .replace("{tp3}", st.tp3)
+    .replace("{na}", st.na);
+
+  const summaryHTML = `
+    <div class="analysis-summary" style="grid-template-columns:repeat(6,1fr)">
+      <div class="as-card tp3"><strong>${st.tp3}</strong><span>${escapeHTML(t("tp3Label"))}</span></div>
+      <div class="as-card tp2"><strong>${st.tp2}</strong><span>${escapeHTML(t("tp2Label"))}</span></div>
+      <div class="as-card tp1"><strong>${st.tp1}</strong><span>${escapeHTML(t("tp1Label"))}</span></div>
+      <div class="as-card na"><strong>${st.na}</strong><span>${escapeHTML(t("naLabel"))}</span></div>
+      <div class="as-card" style="background:#eaf1fc"><strong>${st.total}</strong><span>${escapeHTML(t("totalSPs"))}</span></div>
+      <div class="as-card" style="background:#f5effa"><strong>${avgTxt}</strong><span>${escapeHTML(t("avgLabel"))}</span></div>
+    </div>
+  `;
+
+  const spDetailHTML = `
+    <h4 style="margin:18px 0 8px;font-size:14px">📋 ${escapeHTML(t("spDetailTitle"))}</h4>
+    <div class="table-wrap">
+      <table class="sp-detail-table">
+        <thead>
+          <tr>
+            <th style="text-align:left">SP</th>
+            <th>TP3</th>
+            <th>TP2</th>
+            <th>TP1</th>
+            <th>${escapeHTML(t("naLabel"))}</th>
+            <th>${escapeHTML(t("totalSP"))}</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${st.perSP.map(({ sp, tp1, tp2, tp3, na, total }) => `
+            <tr>
+              <td class="sp-desc">${escapeHTML(lang === "zh" ? sp.zh : sp.bm)}</td>
+              <td class="num tp3">${tp3}</td>
+              <td class="num tp2">${tp2}</td>
+              <td class="num tp1">${tp1}</td>
+              <td class="num na">${na}</td>
+              <td class="num">${total}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  const studentDetailHTML = `
+    <h4 style="margin:18px 0 8px;font-size:14px">👧 ${escapeHTML(t("studentDetailTitle"))}</h4>
+    <div class="table-wrap">
+      <table class="sp-detail-table">
+        <thead>
+          <tr>
+            <th style="text-align:left">${escapeHTML(t("studentCol"))}</th>
+            <th>TP3</th>
+            <th>TP2</th>
+            <th>TP1</th>
+            <th>${escapeHTML(t("naLabel"))}</th>
+            <th>${escapeHTML(t("avgCol"))}</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${st.perStudent.map(({ student, tp1, tp2, tp3, na, total }) => {
+            const assessedS = tp1 + tp2 + tp3;
+            const avgS = assessedS ? ((tp1 * 1 + tp2 * 2 + tp3 * 3) / assessedS).toFixed(1) : "—";
+            const urgent = tp1 > 0;
+            return `
+              <tr>
+                <td class="sp-desc">${escapeHTML(student.name)} <small style="color:var(--muted);font-weight:400">(${escapeHTML(student.number)})</small></td>
+                <td class="num tp3">${tp3}</td>
+                <td class="num tp2">${tp2}</td>
+                <td class="num tp1" style="${urgent ? "background:#fbe4e4" : ""}">${tp1}</td>
+                <td class="num na">${na}</td>
+                <td class="num">${avgS}</td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  const tips = lang === "zh" ? interventionLibrary[pillar.id].zh : interventionLibrary[pillar.id].bm;
+  const hasTP1 = st.tp1 > 0;
+  const suggHTML = `
+    <h4 style="margin:18px 0 8px;font-size:14px">
+      💡 ${escapeHTML(t("interventionSuggest"))}
+      ${hasTP1
+        ? `<span style="background:#f4a6a6;color:#fff;padding:2px 8px;border-radius:8px;font-size:11px;margin-left:6px">TP1 × ${st.tp1}</span>`
+        : `<span style="background:#a9d6a9;color:#fff;padding:2px 8px;border-radius:8px;font-size:11px;margin-left:6px">OK</span>`}
+    </h4>
+    <ul style="margin:6px 0 0;padding-left:20px;font-size:13px;line-height:1.7">
+      ${tips.map(tip => `<li>${escapeHTML(tip)}</li>`).join("")}
+    </ul>
+  `;
+
+  return `
+    <div class="bidang-card">
+      <div class="bidang-card-header">
+        <h3>${escapeHTML(lang === "zh" ? pillar.zh : pillar.bm)} <small style="font-weight:400;color:var(--muted)">${escapeHTML(lang === "zh" ? pillar.bm : pillar.zh)}</small></h3>
+        <span class="bidang-avg">${escapeHTML(t("avgLabel"))}：${avgTxt}　|　${escapeHTML(t("spCount"))}：${st.total}</span>
+      </div>
+      ${summaryHTML}
+      ${renderPillarBars(st)}
+      <div class="bidang-sp-summary" style="margin-top:10px">${escapeHTML(summaryLine)}</div>
+      ${spDetailHTML}
+      ${studentDetailHTML}
+      ${suggHTML}
+    </div>
+  `;
+}
+
+function renderOverallAnalysis(list) {
+  const overall = computeOverallStats(list);
+
+  const perPillarCards = pillars.map(p => {
+    const st = computeSinglePillarStats(list, p);
+    const avgTxt = st.avg ? st.avg.toFixed(1) : "—";
+    return `
+      <div class="bidang-card" style="padding:12px 14px">
+        <div class="bidang-card-header" style="margin-bottom:6px">
+          <h3 style="font-size:14px">${escapeHTML(lang === "zh" ? p.zh : p.bm)}</h3>
+          <span class="bidang-avg">${escapeHTML(t("avgLabel"))}：${avgTxt}</span>
+        </div>
+        ${renderPillarBars(st)}
+        <div style="font-size:12px;color:var(--muted);margin-top:6px">
+          TP1 ${st.tp1} · TP2 ${st.tp2} · TP3 ${st.tp3} · ${escapeHTML(t("naLabel"))} ${st.na}
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  const summaryHTML = `
+    <div class="analysis-summary" style="grid-template-columns:repeat(6,1fr)">
+      <div class="as-card tp3"><strong>${overall.tp3}</strong><span>${escapeHTML(t("tp3Label"))}</span></div>
+      <div class="as-card tp2"><strong>${overall.tp2}</strong><span>${escapeHTML(t("tp2Label"))}</span></div>
+      <div class="as-card tp1"><strong>${overall.tp1}</strong><span>${escapeHTML(t("tp1Label"))}</span></div>
+      <div class="as-card na"><strong>${overall.na}</strong><span>${escapeHTML(t("naLabel"))}</span></div>
+      <div class="as-card" style="background:#eaf1fc"><strong>${overall.total}</strong><span>${escapeHTML(t("totalSPs"))}</span></div>
+      <div class="as-card" style="background:#f5effa"><strong>${overall.avg ? overall.avg.toFixed(1) : "—"}</strong><span>${escapeHTML(t("avgLabel"))}</span></div>
+    </div>
+  `;
+
+  const needIntervention = list
+    .map(s => {
+      let totalTP1 = 0;
+      const weakPillars = [];
+      pillars.forEach(p => {
+        let tp1 = 0;
+        p.sp.forEach(sp => {
+          if (Number(s.grades[sp.id]) === 1) tp1++;
+        });
+        totalTP1 += tp1;
+        if (tp1 > 0) weakPillars.push(p);
+      });
+      return { s, count: totalTP1, weakPillars };
+    })
+    .filter(x => x.count > 0)
+    .sort((a, b) => b.count - a.count);
+
+  const interventionHTML = needIntervention.length
+    ? `<div class="intervention-list">${
+        needIntervention.map(({ s, count, weakPillars }) => {
+          const urgent = count >= 3;
+          const names = weakPillars.map(p => lang === "zh" ? p.zh : p.bm).join("、");
+          return `
+            <div class="student-need ${urgent ? "urgent" : ""}">
+              <div class="sn-head">
+                <span class="sn-name">${escapeHTML(s.name)} <small style="font-weight:400;color:var(--muted)">(${escapeHTML(s.number)} · ${escapeHTML(s.className)})</small></span>
+                <span class="sn-count ${urgent ? "" : "ok"}">TP1 × ${count}</span>
+              </div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px">
+                ${escapeHTML(t("attentionPillars"))}${escapeHTML(names)}
+              </div>
+              <div class="sn-actions">
+                <button class="secondary" data-action="analysis-open" data-id="${escapeHTML(s.id)}">${escapeHTML(t("openAssessment"))}</button>
+              </div>
+            </div>
+          `;
+        }).join("")
+      }</div>`
+    : `<div class="notice">${escapeHTML(t("noIntervention"))}</div>`;
+
+  return `
+    ${summaryHTML}
+    <h4 style="margin:18px 0 10px;font-size:14px">📊 ${escapeHTML(t("perPillarAnalysis"))}</h4>
+    <div class="bidang-analysis">${perPillarCards}</div>
+    <h4 style="margin:22px 0 10px;font-size:14px">🚨 ${escapeHTML(t("interventionTitle"))}</h4>
+    ${interventionHTML}
+  `;
+}
+
+function renderAnalysis() {
+  const list = getFilteredStudents();
+  renderAnalysisTabs(list);
+
+  if (analysisActiveId === "overall") {
+    $("analysisContent").innerHTML = renderOverallAnalysis(list);
+  } else {
+    const pillar = pillars.find(p => p.id === analysisActiveId);
+    if (pillar) {
+      $("analysisContent").innerHTML = renderPillarAnalysis(list, pillar);
+    } else {
+      analysisActiveId = "overall";
+      $("analysisContent").innerHTML = renderOverallAnalysis(list);
+    }
+  }
+}
+
+function renderReport() {
+  const s = currentStudent();
+  if (!s) {
+    $("reportContent").innerHTML = `<div class="empty">${escapeHTML(t("noStudents"))}</div>`;
+    return;
+  }
+
+  const textValue = value => escapeHTML(value || t("noComment")).replace(/\n/g, "<br>");
+
+  const reportPillars = pillars.map(p => {
+    const avg = pillarAverage(s.grades, p);
+    const label = avg ? translations[lang].levels[avg] : (lang === "zh" ? "尚未评估" : "Belum dinilai");
+    return `<tr>
+      <td><b>${escapeHTML(lang === "zh" ? p.zh : p.bm)}</b></td>
+      <td>${escapeHTML(lang === "zh" ? p.bm : p.zh)}</td>
+      <td>${escapeHTML(label)}</td>
+    </tr>`;
+  }).join("");
+
+  $("reportContent").innerHTML = `
+    <div class="report-header">
+      ${logoData ? `<img class="report-logo" src="${logoData}" alt="Logo">` : ""}
+      <h2>${escapeHTML(settings.schoolName)}</h2>
+      <h3>${escapeHTML(t("reportTitle"))}</h3>
+      <p>${escapeHTML(settings.term)}</p>
+    </div>
+
+    <div class="report-student-info">
+    ${s.photo ? `<img class="report-student-photo" src="${s.photo}" alt="学生照片">` : ""}
+    <div class="report-meta">
+      <div><b>${escapeHTML(t("student"))}：</b>${escapeHTML(s.name)}</div>
+      <div><b>${escapeHTML(t("studentNo"))}：</b>${escapeHTML(s.number)}</div>
+      <div><b>${escapeHTML(t("ageLabel"))}：</b>${escapeHTML(s.age)}</div>
+      <div><b>${escapeHTML(t("classLabel"))}：</b>${escapeHTML(s.className)}</div>
+      <div><b>${escapeHTML(t("genderLabel"))}：</b>${escapeHTML(
+        s.gender === "男" ? (lang === "zh" ? "男" : "Lelaki") :
+        s.gender === "女" ? (lang === "zh" ? "女" : "Perempuan") : s.gender
+      )}</div>
+      <div><b>${escapeHTML(t("teacherLabel"))}：</b>${escapeHTML(settings.teacherName)}</div>
+    </div>
+    </div>
+
+    <h3>${escapeHTML(t("domain"))}</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>${escapeHTML(t("domain"))}</th>
+          <th>${lang === "zh" ? "Bahasa Melayu" : "Bahasa Cina"}</th>
+          <th>${escapeHTML(t("level"))}</th>
+        </tr></thead>
+        <tbody>${reportPillars}</tbody>
+      </table>
+    </div>
+
+    <h3>${escapeHTML(t("strengthsLabel"))}</h3>
+    <p>${textValue(s.strengths)}</p>
+
+    <h3>${escapeHTML(t("improvementLabel"))}</h3>
+    <p>${textValue(s.improvement)}</p>
+
+    <h3>${escapeHTML(t("commentLabel"))}</h3>
+    <p>${textValue(s.comment)}</p>
+
+    <div style="display:flex;justify-content:space-between;gap:25px;margin-top:45px">
+      <div style="width:45%;border-top:1px solid #777;padding-top:8px">
+        ${escapeHTML(t("signature"))}: ${escapeHTML(settings.teacherName)}
+      </div>
+      <div style="width:35%;border-top:1px solid #777;padding-top:8px">
+        ${escapeHTML(t("date"))}: __________________
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:28px;font-size:11px;color:#888">
+      KSPK Preschool Learning & Development Record
+    </p>
+  `;
+}
+
+function clearStudentForm() {
+  $("editId").value = "";
+  $("studentName").value = "";
+  $("studentId").value = "";
+  $("studentAge").value = "5";
+  $("studentClass").value = "A 班";
+  $("studentGender").value = "女";
+  studentPhotoData = "";
+  $("studentPhotoUpload").value = "";
+  $("studentPhotoPreview").src = "";
+  $("studentPhotoPreview").style.display = "none";
+  $("addStudentBtn").textContent = t("saveStudent");
+}
+
+function editStudent(id) {
+  const s = students.find(item => item.id === id);
+  if (!s) return;
+  $("editId").value = s.id;
+  $("studentName").value = s.name;
+  $("studentId").value = s.number;
+  $("studentAge").value = s.age;
+  $("studentClass").value = s.className;
+  $("studentGender").value = s.gender;
+  studentPhotoData = s.photo || "";
+  $("studentPhotoUpload").value = "";
+  $("studentPhotoPreview").src = studentPhotoData;
+  $("studentPhotoPreview").style.display = studentPhotoData ? "block" : "none";
+  $("addStudentBtn").textContent = lang === "zh" ? "保存修改" : "Simpan Perubahan";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function saveStudent() {
+  const name = $("studentName").value.trim();
+  if (!name) {
+    alert(lang === "zh" ? "请输入学生姓名。" : "Sila masukkan nama murid.");
+    $("studentName").focus();
+    return;
+  }
+
+  const editId = $("editId").value;
+  const data = {
+    name,
+    number: $("studentId").value.trim() || ("S" + String(students.length + 1).padStart(3,"0")),
+    age: $("studentAge").value,
+    className: $("studentClass").value.trim() || "A 班",
+    gender: $("studentGender").value,
+    photo: studentPhotoData
+  };
+
+  if (editId) {
+    const existing = students.find(s => s.id === editId);
+    if (existing) Object.assign(existing, data);
+  } else {
+    students.push(newStudent(data));
+  }
+
+  saveData();
+  clearStudentForm();
+  renderStudentList();
+  renderGrades();
+  renderReport();
+  renderAnalysis();
+  alert(t("added"));
+}
+
+function setLanguage(nextLang) {
+  lang = nextLang;
+  document.documentElement.lang = lang === "zh" ? "zh-CN" : "ms";
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.dataset.i18n;
+    if (translations[lang][key]) el.textContent = translations[lang][key];
+  });
+  $("langBtn").textContent = translations[lang].languageBtn;
+  if ($("toggleStudentList")) {
+    const isVisible = !$("studentList").classList.contains("hidden");
+    $("toggleStudentList").textContent = isVisible
+      ? (lang === "zh" ? "隐藏学生名单" : "Sembunyikan Senarai Murid")
+      : (lang === "zh" ? "显示学生名单 / 管理学生" : "Papar / Urus Senarai Murid");
+  }
+  $("appTitle").textContent = lang === "zh"
+    ? "🌼 学前班成长报告系统"
+    : "🌼 Sistem Laporan Perkembangan Prasekolah";
+  renderStudentList();
+  renderGrades();
+  renderReport();
+  renderAnalysis();
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+  $("assessmentPanel").classList.toggle("hidden", tab !== "assessment");
+  $("analysisPanel").classList.toggle("hidden", tab !== "analysis");
+  $("reportPanel").classList.toggle("hidden", tab !== "report");
+  document.querySelectorAll("[data-tab]").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.tab === tab);
+  });
+  if (tab === "report") renderReport();
+  if (tab === "analysis") renderAnalysis();
+}
+
+function saveSchoolSettings() {
+  settings.schoolName = $("schoolName").value.trim() || "Kindergarten";
+  settings.teacherName = $("teacherName").value.trim() || "Teacher";
+  settings.term = $("term").value.trim() || "2026";
+  saveData();
+  renderReport();
+  alert(t("saved"));
+}
+
+function parseCSVLine(line) {
+  const result = [];
+  let current = "", quoted = false;
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    if (char === '"') {
+      if (quoted && line[i+1] === '"') { current += '"'; i++; }
+      else quoted = !quoted;
+    } else if (char === "," && !quoted) {
+      result.push(current.trim()); current = "";
+    } else {
+      current += char;
+    }
+  }
+  result.push(current.trim());
+  return result;
+}
+
+function importCSV(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const lines = String(reader.result || "")
+        .replace(/^\uFEFF/, "")
+        .split(/\r?\n/)
+        .filter(line => line.trim());
+
+      let imported = 0;
+      lines.forEach((line, index) => {
+        const cols = parseCSVLine(line);
+        if (index === 0 && /姓名|name/i.test(cols[0])) return;
+        if (!cols[0]) return;
+
+        students.push(newStudent({
+          name: cols[0],
+          number: cols[1] || ("S" + String(students.length + 1).padStart(3,"0")),
+          age: cols[2] || 5,
+          className: cols[3] || "A 班",
+          gender: cols[4] || "女"
+        }));
+        imported++;
+      });
+
+      saveData();
+      renderStudentList();
+      renderGrades();
+      renderReport();
+      renderAnalysis();
+      alert(t("importDone") + " " + imported);
+    } catch (error) {
+      alert(t("invalidFile"));
+    }
+    $("csvUpload").value = "";
+  };
+  reader.onerror = () => alert(t("invalidFile"));
+  reader.readAsText(file, "UTF-8");
+}
+
+function selectedStudentIds() {
+  return Array.from($("studentList").querySelectorAll("[data-student-check]:checked"))
+    .map(input => input.dataset.studentCheck);
+}
+
+function batchDeleteStudents() {
+  const ids = selectedStudentIds();
+  if (!ids.length) return alert("请先勾选要删除的学生。");
+  if (!confirm(`确定要删除选中的 ${ids.length} 位学生吗？此操作无法撤销。`)) return;
+  students = students.filter(s => !ids.includes(s.id));
+  saveData();
+  renderStudentList();
+  renderGrades();
+  renderReport();
+  renderAnalysis();
+  alert(`已删除 ${ids.length} 位学生。`);
+}
+
+function batchPrintStudents() {
+  const ids = selectedStudentIds();
+  if (!ids.length) return alert("请先勾选要打印的学生。");
+
+  const originalId = $("activeStudent").value;
+  const originalContent = $("reportContent").innerHTML;
+  const originalTab = activeTab;
+
+  if ($("editId").value) {
+    const editId = $("editId").value;
+    const existing = students.find(s => s.id === editId);
+    if (existing) {
+      existing.name = $("studentName").value.trim() || existing.name;
+      existing.number = $("studentId").value.trim() || existing.number;
+      existing.age = $("studentAge").value;
+      existing.className = $("studentClass").value.trim() || existing.className;
+      existing.gender = $("studentGender").value;
+      existing.photo = studentPhotoData || existing.photo;
+    }
+    saveData();
+  }
+
+  const reports = [];
+  ids.forEach(id => {
+    const student = students.find(s => s.id === id);
+    if (!student) return;
+    $("activeStudent").value = id;
+    renderReport();
+    reports.push(`<div class="report batch-print-report">${$("reportContent").innerHTML}</div>`);
+  });
+
+  switchTab("report");
+  $("reportContent").classList.add("batch-mode");
+  $("reportContent").innerHTML = reports.join("");
+
+  const restore = () => {
+    window.removeEventListener("afterprint", restore);
+    $("reportContent").classList.remove("batch-mode");
+    $("activeStudent").value = originalId;
+    $("reportContent").innerHTML = originalContent;
+    switchTab(originalTab);
+    renderStudentList();
+    renderGrades();
+  };
+  window.addEventListener("afterprint", restore);
+  setTimeout(() => window.print(), 200);
+}
+
+$("saveSettings").addEventListener("click", saveSchoolSettings);
+$("addStudentBtn").addEventListener("click", saveStudent);
+$("clearForm").addEventListener("click", clearStudentForm);
+$("saveAssessment").addEventListener("click", saveCurrentAssessment);
+$("activeStudent").addEventListener("change", () => {
+  renderStudentList();
+  renderGrades();
+  renderReport();
+});
+$("searchStudent").addEventListener("input", () => {
+  $("studentList").classList.remove("hidden");
+  $("toggleStudentList").setAttribute("aria-expanded", "true");
+  $("toggleStudentList").textContent = lang === "zh" ? "隐藏学生名单" : "Sembunyikan Senarai Murid";
+  renderStudentList();
+});
+$("toggleStudentList").addEventListener("click", () => {
+  const list = $("studentList");
+  const willShow = list.classList.contains("hidden");
+  list.classList.toggle("hidden", !willShow);
+  $("toggleStudentList").setAttribute("aria-expanded", String(willShow));
+  $("toggleStudentList").textContent = willShow
+    ? (lang === "zh" ? "隐藏学生名单" : "Sembunyikan Senarai Murid")
+    : (lang === "zh" ? "显示学生名单 / 管理学生" : "Papar / Urus Senarai Murid");
+});
+$("refreshReport").addEventListener("click", renderReport);
+$("printBtn").addEventListener("click", () => window.print());
+$("printReport").addEventListener("click", () => window.print());
+
+$("langBtn").addEventListener("click", () => {
+  setLanguage(lang === "zh" ? "bm" : "zh");
+});
+
+document.querySelectorAll("[data-tab]").forEach(btn => {
+  btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+});
+
+$("studentList").addEventListener("click", event => {
+  const btn = event.target.closest("[data-action]");
+  if (!btn) return;
+  const id = btn.dataset.id;
+  const action = btn.dataset.action;
+  if (action === "batch-delete") { batchDeleteStudents(); return; }
+  if (action === "batch-print") { batchPrintStudents(); return; }
+
+  if (action === "select") {
+    $("activeStudent").value = id;
+    renderStudentList();
+    renderGrades();
+    renderReport();
+    return;
+  }
+  if (action === "edit") { editStudent(id); return; }
+  if (action === "delete") {
+    if (!confirm(t("confirmDelete"))) return;
+    students = students.filter(s => s.id !== id);
+    saveData();
+    renderStudentList();
+    renderGrades();
+    renderReport();
+    renderAnalysis();
+    alert(t("deleted"));
+  }
+});
+
+$("analysisContent").addEventListener("click", event => {
+  const btn = event.target.closest("[data-action='analysis-open']");
+  if (!btn) return;
+  const id = btn.dataset.id;
+  $("activeStudent").value = id;
+  switchTab("assessment");
+  renderStudentList();
+  renderGrades();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+$("analysisTabs").addEventListener("click", event => {
+  const btn = event.target.closest("[data-analysis]");
+  if (!btn) return;
+  analysisActiveId = btn.dataset.analysis;
+  renderAnalysis();
+});
+
+$("studentList").addEventListener("change", event => {
+  if (event.target.id === "selectAllVisible") {
+    $("studentList").querySelectorAll("[data-student-check]").forEach(input => {
+      input.checked = event.target.checked;
+    });
+  }
+});
+
+$("pillarGrid").addEventListener("change", event => {
+  const s = currentStudent();
+  if (!s) return;
+
+  if (event.target.matches("[data-grade]")) {
+    s.grades[event.target.dataset.grade] = Number(event.target.value);
+    const pillarEl = event.target.closest(".pillar");
+    if (pillarEl) {
+      const pillarId = pillarEl.querySelector("[data-pillar-average]").dataset.pillarAverage;
+      const pillar = pillars.find(p => p.id === pillarId);
+      if (pillar) {
+        const avg = pillarAverage(s.grades, pillar);
+        const avgLabel = avg
+          ? translations[lang].levels[avg]
+          : (lang === "zh" ? "尚未评估" : "Belum dinilai");
+        pillarEl.querySelector("[data-pillar-average]").textContent =
+          t("averageLabel") + avgLabel;
+      }
+    }
+    saveData();
+    renderStats();
+    return;
+  }
+
+  if (event.target.matches("[data-bulk-pillar]")) {
+    const pillarId = event.target.dataset.bulkPillar;
+    const value = Number(event.target.value);
+    if (!value) return;
+
+    const pillar = pillars.find(p => p.id === pillarId);
+    if (!pillar) return;
+
+    pillar.sp.forEach(sp => { s.grades[sp.id] = value; });
+
+    const pillarEl = event.target.closest(".pillar");
+    pillarEl.querySelectorAll("[data-grade]").forEach(sel => {
+      sel.value = String(value);
+    });
+
+    const avg = pillarAverage(s.grades, pillar);
+    const avgLabel = avg
+      ? translations[lang].levels[avg]
+      : (lang === "zh" ? "尚未评估" : "Belum dinilai");
+    pillarEl.querySelector("[data-pillar-average]").textContent =
+      t("averageLabel") + avgLabel;
+
+    event.target.value = "";
+
+    saveData();
+    renderStats();
+  }
+});
+
+document.querySelectorAll("[data-ai]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    applyAISuggestion(btn.dataset.ai);
+  });
+});
+
+$("filterClass").addEventListener("change", renderAnalysis);
+$("filterGender").addEventListener("change", renderAnalysis);
+$("refreshAnalysis").addEventListener("click", renderAnalysis);
+
+$("csvUpload").addEventListener("change", event => {
+  const file = event.target.files && event.target.files[0];
+  if (file) importCSV(file);
+});
+
+$("studentPhotoUpload").addEventListener("change", event => {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith("image/")) { alert("请选择图片文件。"); event.target.value = ""; return; }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const maxSide = 500;
+      const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(img.width * scale));
+      canvas.height = Math.max(1, Math.round(img.height * scale));
+      canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+      studentPhotoData = canvas.toDataURL("image/jpeg", 0.78);
+      $("studentPhotoPreview").src = studentPhotoData;
+      $("studentPhotoPreview").style.display = "block";
+
+      const editId = $("editId").value;
+      if (editId) {
+        const existing = students.find(s => s.id === editId);
+        if (existing) {
+          existing.photo = studentPhotoData;
+          saveData();
+          renderStudentList();
+          renderGrades();
+          renderReport();
+        }
+      }
+    };
+    img.onerror = () => alert("无法读取这张照片，请换一张图片。");
+    img.src = String(reader.result || "");
+  };
+  reader.onerror = () => alert("无法读取图片文件。");
+  reader.readAsDataURL(file);
+});
+
+$("logoUpload").addEventListener("change", event => {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith("image/")) { alert("请选择图片文件。"); event.target.value = ""; return; }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const maxSide = 400;
+      const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(img.width * scale));
+      canvas.height = Math.max(1, Math.round(img.height * scale));
+      canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+      logoData = canvas.toDataURL("image/png");
+      applySettings();
+      saveData();
+      renderReport();
+    };
+    img.onerror = () => alert("无法读取校徽图片，请换一张图片。");
+    img.src = String(reader.result || "");
+  };
+  reader.onerror = () => alert("无法读取图片文件。");
+  reader.readAsDataURL(file);
+});
+
+loadData();
+applySettings();
+setLanguage("zh");
+renderStudentList();
+renderGrades();
+renderReport();
+renderAnalysis();
+})();
+</script>
+</body>
+</html>
