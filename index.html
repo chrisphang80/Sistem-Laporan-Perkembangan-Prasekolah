@@ -44,6 +44,7 @@ button.secondary { background: #eee9f7; }
 button.green { background: #d9edda; }
 button.blue { background: #dceafa; }
 button.danger { background: #ffe0dc; }
+button.orange { background: #ffe1ce; }
 button.ai-btn {
   background: #e9ddfa;
   padding: 7px 11px;
@@ -308,7 +309,6 @@ footer { text-align: center; padding: 15px; color: var(--muted); font-size: 12px
   line-height: 1.5;
 }
 
-/* SP / 学生明细表 */
 .sp-detail-table {
   width: 100%; border-collapse: collapse; font-size: 12.5px;
   margin-top: 6px;
@@ -328,7 +328,6 @@ footer { text-align: center; padding: 15px; color: var(--muted); font-size: 12px
 .sp-detail-table td.num.tp1 { color: #b13a3a; }
 .sp-detail-table td.num.na  { color: #888; }
 
-/* 干预清单 */
 .intervention-section { margin-top: 22px; }
 .intervention-list {
   display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
@@ -352,6 +351,40 @@ footer { text-align: center; padding: 15px; color: var(--muted); font-size: 12px
   margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;
 }
 
+/* ============ 备份 / 恢复面板 ============ */
+.backup-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+}
+.backup-card {
+  border: 1px solid var(--border); border-radius: 14px;
+  padding: 16px 18px; background: #fffdfd;
+}
+.backup-card h3 { margin: 0 0 8px; font-size: 15px; }
+.backup-card p { font-size: 12.5px; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
+.backup-card .actions { margin-top: 6px; }
+.backup-meta {
+  font-size: 12px; color: var(--muted); margin-top: 8px;
+  background: #f7f3fa; padding: 8px 10px; border-radius: 8px;
+  line-height: 1.6;
+}
+.drop-zone {
+  border: 2px dashed #c9b8e0;
+  border-radius: 12px;
+  padding: 20px 14px;
+  text-align: center;
+  color: #7a6a90;
+  font-size: 13px;
+  background: #faf7fd;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease;
+  margin-top: 8px;
+}
+.drop-zone:hover,
+.drop-zone.dragover {
+  background: #f3ecfb;
+  border-color: #a98bd6;
+}
+
 @media(max-width:850px) {
   .layout { grid-template-columns: 1fr; }
   .stats { gap: 7px; }
@@ -361,6 +394,7 @@ footer { text-align: center; padding: 15px; color: var(--muted); font-size: 12px
   .analysis-summary { grid-template-columns: repeat(3, 1fr); }
   .bidang-analysis { grid-template-columns: 1fr; }
   .intervention-list { grid-template-columns: 1fr; }
+  .backup-grid { grid-template-columns: 1fr; }
 }
 
 @media print {
@@ -508,6 +542,32 @@ footer { text-align: center; padding: 15px; color: var(--muted); font-size: 12px
         <button type="button" class="secondary" id="toggleStudentList" aria-expanded="false" style="width:100%;margin-top:10px">显示学生名单 / 管理学生</button>
         <div id="studentList" class="student-list hidden"></div>
       </section>
+
+      <!-- 备份 / 恢复 -->
+      <section class="panel no-print">
+        <h2 data-i18n="backupTitle">💾 备份 / 恢复</h2>
+        <p class="subtitle" data-i18n="backupHelp">将全部学生资料、评估、学校资料、校徽与照片导出为 .json 备份文件；需要时载入备份即可完整恢复。</p>
+
+        <div class="backup-grid">
+          <div class="backup-card">
+            <h3 data-i18n="backupCardTitle">📤 导出备份</h3>
+            <p data-i18n="backupCardDesc">生成一个包含所有数据的 .json 文件，可保存在电脑、U 盘或云端。</p>
+            <div class="actions">
+              <button class="green" id="backupBtn" data-i18n="backupBtn">💾 导出备份文件</button>
+            </div>
+            <div class="backup-meta" id="backupMeta"></div>
+          </div>
+
+          <div class="backup-card">
+            <h3 data-i18n="restoreCardTitle">📥 恢复备份</h3>
+            <p data-i18n="restoreCardDesc">选择之前导出的 .json 备份文件，系统会覆盖当前所有资料。恢复前请先导出当前备份以防万一。</p>
+            <div class="drop-zone" id="dropZone" data-i18n="dropZoneHint">
+              点击此处选择 .json 备份文件，或将文件拖放到此处
+            </div>
+            <input type="file" id="restoreInput" accept=".json,application/json" style="display:none">
+          </div>
+        </div>
+      </section>
     </aside>
 
     <main class="main">
@@ -567,7 +627,7 @@ footer { text-align: center; padding: 15px; color: var(--muted); font-size: 12px
         <button class="green" id="saveAssessment" data-i18n="saveAssessment">保存评估与评语</button>
       </section>
 
-      <!-- 成绩分析（选项卡：总分析 + 6 领域） -->
+      <!-- 成绩分析 -->
       <section id="analysisPanel" class="panel no-print hidden">
         <h2 data-i18n="analysisTitle">📈 成绩分析</h2>
         <p class="subtitle" data-i18n="analysisHelp">点击上方按钮切换查看总分析或单个领域的 TP 分布。</p>
@@ -643,7 +703,7 @@ const pillars = [
       { id:"PM1", zh:"PM1: 实践爱的价值观", bm:"PM1: Mengamalkan nilai kasih sayang." },
       { id:"PM2", zh:"PM2: 尊重他人", bm:"PM2: Menghormati orang lain." },
       { id:"PM3", zh:"PM3: 在日常生活中诚实", bm:"PM3: Bersikap jujur dalam pergaulan seharian." },
-      { id:"PM4", zh:"PM4: 勤奋完成任务", bm:"PM4: Mengamalkan sikap rajin dalam menyelesaikan tugas yang diberi." },
+      { id:"PM4", zh:"PM4: 勤奋完成任务", bm:"PM4: Mengamalkan sikap rajin dalam menyelesaikan tugasan yang diberi." },
       { id:"KW1", zh:"KW1: 对家庭负责", bm:"KW1: Mengetahui dan melaksanakan tanggungjawab terhadap keluarga." },
       { id:"KW2", zh:"KW2: 对社区负责", bm:"KW2: Mengetahui dan melaksanakan tanggungjawab terhadap komuniti." },
       { id:"KW3", zh:"KW3: 对国家负责", bm:"KW3: Mengetahui dan melaksanakan tanggungjawab terhadap negara." }
@@ -834,7 +894,22 @@ const translations = {
     studentDetailTitle:"各学生的 TP 数量",
     studentCol:"学生",
     avgCol:"领域平均",
-    interventionSuggest:"干预活动建议"
+    interventionSuggest:"干预活动建议",
+    backupTitle:"💾 备份 / 恢复",
+    backupHelp:"将全部学生资料、评估、学校资料、校徽与照片导出为 .json 备份文件；需要时载入备份即可完整恢复。",
+    backupCardTitle:"📤 导出备份",
+    backupCardDesc:"生成一个包含所有数据的 .json 文件，可保存在电脑、U 盘或云端。",
+    backupBtn:"💾 导出备份文件",
+    restoreCardTitle:"📥 恢复备份",
+    restoreCardDesc:"选择之前导出的 .json 备份文件，系统会覆盖当前所有资料。恢复前请先导出当前备份以防万一。",
+    dropZoneHint:"点击此处选择 .json 备份文件，或将文件拖放到此处",
+    backupDone:"备份文件已导出。",
+    backupEmpty:"目前没有资料可备份，请先添加学生或填写资料。",
+    restoreDone:"备份已成功恢复，共 {students} 位学生。",
+    restoreInvalid:"备份文件格式不正确，无法恢复。",
+    restoreConfirm:"确定要恢复此备份吗？当前所有资料将被覆盖，此操作无法撤销。建议先导出当前备份。",
+    backupMeta:"学生：{students} 位 · 班级：{classes} 个 · 校徽：{logo} · 教师：{teacher}",
+    yes:"有", no:"无"
   },
   bm: {
     schoolSettings:"🏫 Maklumat Sekolah", schoolName:"Nama Sekolah",
@@ -895,7 +970,22 @@ const translations = {
     studentDetailTitle:"Pecahan TP setiap murid",
     studentCol:"Murid",
     avgCol:"Purata",
-    interventionSuggest:"Cadangan Aktiviti Intervensi"
+    interventionSuggest:"Cadangan Aktiviti Intervensi",
+    backupTitle:"💾 Sandaran / Pulih",
+    backupHelp:"Eksport semua data murid, penilaian, maklumat sekolah, logo dan foto ke fail .json; pulihkan bila perlu.",
+    backupCardTitle:"📤 Eksport Sandaran",
+    backupCardDesc:"Jana fail .json yang mengandungi semua data; simpan di komputer, pemacu USB atau awan.",
+    backupBtn:"💾 Eksport Fail Sandaran",
+    restoreCardTitle:"📥 Pulihkan Sandaran",
+    restoreCardDesc:"Pilih fail .json sandaran terdahulu; sistem akan menggantikan semua data semasa. Sila eksport sandaran semasa terlebih dahulu.",
+    dropZoneHint:"Klik di sini untuk pilih fail .json, atau seret fail ke sini",
+    backupDone:"Fail sandaran telah dieksport.",
+    backupEmpty:"Tiada data untuk disandarkan buat masa ini.",
+    restoreDone:"Sandaran berjaya dipulihkan, {students} orang murid.",
+    restoreInvalid:"Format fail sandaran tidak sah.",
+    restoreConfirm:"Pulihkan sandaran ini? Semua data semasa akan digantikan, tidak boleh dibatalkan. Sila eksport sandaran semasa terlebih dahulu.",
+    backupMeta:"Murid: {students} · Kelas: {classes} · Logo: {logo} · Guru: {teacher}",
+    yes:"Ada", no:"Tiada"
   }
 };
 
@@ -1077,6 +1167,7 @@ function renderStudentList() {
   }
 
   renderStats();
+  renderBackupMeta();
 }
 
 function currentStudent() {
@@ -1271,7 +1362,7 @@ function applyAISuggestion(type) {
 }
 
 /* ============================================================
-   成绩分析 —— 总分析 + 6 领域选项卡
+   成绩分析
    ============================================================ */
 function getFilteredStudents() {
   const cls = $("filterClass").value;
@@ -1913,6 +2004,124 @@ function batchPrintStudents() {
   setTimeout(() => window.print(), 200);
 }
 
+/* ============================================================
+   备份 / 恢复
+   ============================================================ */
+function renderBackupMeta() {
+  const meta = $("backupMeta");
+  if (!meta) return;
+  const classCount = new Set(students.map(s => s.className)).size;
+  const metaTpl = t("backupMeta")
+    .replace("{students}", students.length)
+    .replace("{classes}", classCount)
+    .replace("{logo}", logoData ? t("yes") : t("no"))
+    .replace("{teacher}", settings.teacherName || "—");
+  meta.textContent = metaTpl;
+}
+
+function exportBackup() {
+  if (!students.length && !logoData && !settings.schoolName) {
+    alert(t("backupEmpty"));
+    return;
+  }
+
+  const backup = {
+    _meta: {
+      app: "KSPK Preschool Report",
+      version: 3,
+      exportedAt: new Date().toISOString()
+    },
+    settings: { ...settings },
+    logoData,
+    students: students.map(s => ({
+      id: s.id,
+      name: s.name,
+      number: s.number,
+      age: s.age,
+      className: s.className,
+      gender: s.gender,
+      photo: s.photo || "",
+      grades: { ...s.grades },
+      strengths: s.strengths || "",
+      improvement: s.improvement || "",
+      comment: s.comment || ""
+    }))
+  };
+
+  const json = JSON.stringify(backup, null, 2);
+  const blob = new Blob([json], { type: "application/json;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const stamp = new Date();
+  const pad = n => String(n).padStart(2, "0");
+  const dateStr = `${stamp.getFullYear()}${pad(stamp.getMonth()+1)}${pad(stamp.getDate())}_${pad(stamp.getHours())}${pad(stamp.getMinutes())}`;
+  const safeSchool = (settings.schoolName || "KSPK").replace(/[\\\/\?\*\[\]:\s]/g, "_");
+  a.href = url;
+  a.download = `${safeSchool}_备份_${dateStr}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+  alert(t("backupDone"));
+}
+
+function restoreBackupFromFile(file) {
+  if (!file) return;
+  if (!file.name.toLowerCase().endsWith(".json") && file.type !== "application/json") {
+    alert(t("restoreInvalid"));
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(String(reader.result || ""));
+      if (!data || typeof data !== "object" || !Array.isArray(data.students)) {
+        alert(t("restoreInvalid"));
+        return;
+      }
+      if (!confirm(t("restoreConfirm"))) return;
+
+      // 还原数据
+      settings = {
+        schoolName: (data.settings && data.settings.schoolName) || "Kindergarten",
+        teacherName: (data.settings && data.settings.teacherName) || "Teacher",
+        term: (data.settings && data.settings.term) || "2026"
+      };
+      logoData = typeof data.logoData === "string" ? data.logoData : "";
+
+      students = data.students.map(s => newStudent({
+        id: s.id,
+        name: s.name,
+        number: s.number,
+        age: s.age,
+        className: s.className,
+        gender: s.gender,
+        photo: s.photo,
+        grades: s.grades,
+        strengths: s.strengths,
+        improvement: s.improvement,
+        comment: s.comment
+      }));
+
+      saveData();
+      applySettings();
+      clearStudentForm();
+      renderStudentList();
+      renderGrades();
+      renderReport();
+      renderAnalysis();
+
+      alert(t("restoreDone").replace("{students}", students.length));
+    } catch (e) {
+      console.error(e);
+      alert(t("restoreInvalid"));
+    }
+  };
+  reader.onerror = () => alert(t("restoreInvalid"));
+  reader.readAsText(file, "UTF-8");
+}
+
 $("saveSettings").addEventListener("click", saveSchoolSettings);
 $("addStudentBtn").addEventListener("click", saveStudent);
 $("clearForm").addEventListener("click", clearStudentForm);
@@ -2126,12 +2335,44 @@ $("logoUpload").addEventListener("change", event => {
       applySettings();
       saveData();
       renderReport();
+      renderBackupMeta();
     };
     img.onerror = () => alert("无法读取校徽图片，请换一张图片。");
     img.src = String(reader.result || "");
   };
   reader.onerror = () => alert("无法读取图片文件。");
   reader.readAsDataURL(file);
+});
+
+/* 备份按钮 */
+$("backupBtn").addEventListener("click", exportBackup);
+
+/* 恢复：点击 drop zone 打开文件选择 */
+$("dropZone").addEventListener("click", () => $("restoreInput").click());
+$("restoreInput").addEventListener("change", event => {
+  const file = event.target.files && event.target.files[0];
+  if (file) restoreBackupFromFile(file);
+  event.target.value = "";
+});
+
+/* 恢复：拖放文件 */
+["dragenter", "dragover"].forEach(evt => {
+  $("dropZone").addEventListener(evt, e => {
+    e.preventDefault();
+    e.stopPropagation();
+    $("dropZone").classList.add("dragover");
+  });
+});
+["dragleave", "drop"].forEach(evt => {
+  $("dropZone").addEventListener(evt, e => {
+    e.preventDefault();
+    e.stopPropagation();
+    $("dropZone").classList.remove("dragover");
+  });
+});
+$("dropZone").addEventListener("drop", e => {
+  const files = e.dataTransfer && e.dataTransfer.files;
+  if (files && files.length) restoreBackupFromFile(files[0]);
 });
 
 loadData();
@@ -2141,6 +2382,7 @@ renderStudentList();
 renderGrades();
 renderReport();
 renderAnalysis();
+renderBackupMeta();
 })();
 </script>
 </body>
